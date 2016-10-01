@@ -13,3 +13,5 @@ class TestStepper(object):
         pass
     def run(self, action):
         pass
+    def setSpeed(self, speed):
+        pass

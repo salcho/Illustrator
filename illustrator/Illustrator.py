@@ -1,3 +1,5 @@
+from Queue import LifoQueue, Queue
+
 from illustrator.Engine import Engine
 from math import sqrt, pow
 import atexit
@@ -21,12 +23,15 @@ class Illustrator(object):
         hypothenuse = sqrt(pow(Illustrator.MOTOR_DISTANCE, 2) + pow(height, 2))
         if (beltLengths[0] <= hypothenuse and not areClose(beltLengths[0], hypothenuse)) \
                 or (beltLengths[1] <= hypothenuse and not areClose(beltLengths[1], hypothenuse)):
-            raise Exception("Belts aren't big enough: (%f, %f) ; minimum lenght is: %f" % (beltLengths[0],
+            raise Exception("Belts aren't big enough: (%f, %f) ; minimum length is: %f" % (beltLengths[0],
                                                                                            beltLengths[1],
-                                                                                           hypothenuse))
-        self.leftEngine = Engine(1, self.motorHat, left, beltLengths[0])
-        self.rightEngine = Engine(2, self.motorHat, right, beltLengths[1])
-        self._currentPosition = initialPositions
+
+                                                                                        hypothenuse))
+        self.leftEngineQueue = Queue()
+        self.rightEngineQueue = Queue()
+        self.leftEngine = Engine("leftStepper", 1, self.motorHat, left, beltLengths[0], self.leftEngineQueue)
+        self.rightEngine = Engine("rightStepper", 2, self.motorHat, right, beltLengths[1], self.rightEngineQueue)
+        self._currentPosition = initialPositions # in (x, y) coords
 
     def _turnOff(self):
         self.motorHat.getMotor(1).run(self.motorHat.RELEASE)
@@ -42,8 +47,11 @@ class Illustrator(object):
         return self
 
     def go(self, x, y):
-        m, b = self.findStraightLineTo(x, y)
-        self._currentPosition = (0, 0)
+        m, b = self.findStraightLineTo(x, y)   # TODO: Do we really need this?
+        (targetLeft, targetRight) = triangleLengths((x,y))
+        self.leftEngineQueue.put(targetLeft)
+        self.rightEngineQueue.put(targetRight)
+        self._currentPosition = (x, y)
 
     def currentPosition(self):
         return self._currentPosition
@@ -65,8 +73,8 @@ class Illustrator(object):
 def triangleLengths(coords):
     leftSide = coords[0]
     rightSide = coords[1]
-    if leftSide * rightSide < 1 or leftSide + rightSide < 0:
-        raise Exception("Negative or zero coords: (%d, %d)" % (leftSide, rightSide))
+    if leftSide < 0 or rightSide < 0:
+        raise Exception("Negative coords: (%d, %d)" % (leftSide, rightSide))
     if leftSide > Illustrator.MOTOR_DISTANCE and not areClose(leftSide, Illustrator.MOTOR_DISTANCE):
         raise Exception("x coordinate out of bounds: (%d > %d)" % (leftSide, Illustrator.MOTOR_DISTANCE))
 

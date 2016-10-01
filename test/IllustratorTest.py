@@ -32,7 +32,7 @@ class IllustratorTest(unittest.TestCase):
 
 
     def test_convertsToValidTriangleLengths(self):
-        invalidLengths = [[0,0], [-1,1], [1,-1], [-1,-1], [Illustrator.MOTOR_DISTANCE + 1, 1]]
+        invalidLengths = [[-1,1], [1,-1], [-1,-1], [Illustrator.MOTOR_DISTANCE + 1, 1]]
         assertInvalidCases(invalidLengths, triangleLengths)
 
         invalidLengths = [[0,0], [-1,1], [1, -1], [-1, -1], [Illustrator.MOTOR_DISTANCE/2, Illustrator.MOTOR_DISTANCE/2]]
