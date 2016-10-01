@@ -50,7 +50,7 @@ class Engine(object):
             self.engine.step(self._beltLength - self._curPosition, Engine.forward, Engine.style)
         else:
             self._curPosition += delta
-            self.engine.step(delta, Engine.forward, Engine.style)
+            self.engine.step(int(delta), Engine.forward, Engine.style)
         return self
 
     def moveLeft(self, delta):
@@ -59,7 +59,7 @@ class Engine(object):
             self.engine.step(self._curPosition, Engine.backward, Engine.style)
         else:
             self._curPosition -= delta
-            self.engine.step(delta, Engine.backward, Engine.style)
+            self.engine.step(int(delta), Engine.backward, Engine.style)
 
         return self
 

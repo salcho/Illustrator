@@ -6,6 +6,7 @@ import atexit
 
 class Illustrator(object):
     MOTOR_DISTANCE = 40
+
     STEP_IN_MM = 1 # Resolution at which to calculate path
 
     # initialPositions -> (x, y) initial gondola position
