@@ -1,7 +1,8 @@
 import unittest
 from Queue import Queue
 
-from illustrator.Engine import Engine
+from illustrator.Engine import Engine, LeftEngine, RightEngine
+from illustrator.Illustrator import Illustrator, cartesianCoords
 from test.TestClasses import TestHat
 
 
@@ -15,16 +16,17 @@ class EngineTest(unittest.TestCase):
             Engine("test", 1, TestHat(), 11, 10, Queue())
 
         try:
-            Engine("test", 1, TestHat(), 0, 1, Queue())
+            LeftEngine("test", 1, TestHat(), 0, 1, Queue())
+            RightEngine("test", 1, TestHat(), 0, 1, Queue())
         except:
             self.fail("Engine rejects initial position 0")
 
     def test_remembersPosition(self):
-        self.assertEquals(Engine("test", 1, TestHat(), 0, 100, Queue()).moveRight(100).moveLeft(100).currentPosition(), 0)
-        self.assertEquals(Engine("test", 1, TestHat(), 0, 100, Queue()).moveRight(100).currentPosition(), 100)
-        self.assertEquals(Engine("test", 1, TestHat(), 0, 100, Queue()).moveRight(100).moveLeft(50).currentPosition(), 50)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).expand(100).currentPosition(), 100)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).currentPosition(), 0)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).expand(50).currentPosition(), 50)
 
     def test_staysWithinLimits(self):
         # Moves to the closest boundary if delta is too big or too small
-        self.assertEquals(Engine("test", 1, TestHat(), 0, 10, Queue()).moveRight(10).moveRight(10).currentPosition(), 10)
-        self.assertEquals(Engine("test", 1, TestHat(), 0, 10, Queue()).moveRight(5).moveLeft(10).currentPosition(), 0)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 10, Queue()).retract(10).retract(10).currentPosition(), 0)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 0, 10, Queue()).retract(5).expand(20).currentPosition(), 10)

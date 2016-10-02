@@ -1,9 +1,10 @@
+import abc
 from threading import Thread
-
 from test.TestClasses import TestHat
 
 
 class Engine(object):
+    __metaclass__ = abc.ABCMeta
     STEPPER_SPEED = 60
     stepsPerPhase = 200
     forward = TestHat.FORWARD
@@ -33,35 +34,64 @@ class Engine(object):
         while True:
             length = self.q.get()
             print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
-            delta = self._curPosition - length
-            thread = None
+            delta = int(self._curPosition) - int(length)
             if not delta:
-                pass
+                print 'delta is zero'
             elif delta > 0:
-                self.moveRight(delta)
+                self.retract(delta)
             else:
-                self.moveLeft(delta)
+                self.expand(delta)
             print '[%s] Current position is: %d' % (self, self._curPosition)
             self.q.task_done()
 
-    def moveRight(self, delta):
-        if self._curPosition + delta > self._beltLength:
-            self._curPosition = self._beltLength
-            self.engine.step(self._beltLength - self._curPosition, Engine.forward, Engine.style)
-        else:
-            self._curPosition += delta
-            self.engine.step(int(delta), Engine.forward, Engine.style)
-        return self
+    @abc.abstractmethod
+    def retract(self, delta):
+        raise NotImplemented("retract")
 
-    def moveLeft(self, delta):
-        if self._curPosition - delta < 0:
-            self._curPosition = 0
-            self.engine.step(self._curPosition, Engine.backward, Engine.style)
-        else:
-            self._curPosition -= delta
-            self.engine.step(int(delta), Engine.backward, Engine.style)
-
-        return self
+    @abc.abstractmethod
+    def expand(self, delta):
+        raise NotImplemented("expand")
 
     def currentPosition(self):
         return self._curPosition
+
+    def beltLength(self):
+        return self._beltLength
+
+    def towardsUpperBoundary(self, direction, delta):
+        if self._curPosition + delta >= self.beltLength():
+            self._curPosition = self.beltLength()
+            self.engine.step(self.beltLength() - self._curPosition, direction, Engine.style)
+        else:
+            self._curPosition += delta
+            self.engine.step(int(delta), direction, Engine.style)
+
+    def towardsLowerBoundary(self, direction, delta):
+        if self._curPosition - delta < 0:
+            self._curPosition = 0
+            self.engine.step(self._curPosition, direction, Engine.style)
+        else:
+            self._curPosition -= delta
+            self.engine.step(int(delta), direction, Engine.style)
+
+class LeftEngine(Engine):
+    def retract(self, delta):
+        print 'left-retract'
+        self.towardsLowerBoundary(Engine.backward, abs(delta))
+        return self
+
+    def expand(self, delta):
+        print 'left-expand'
+        self.towardsUpperBoundary(Engine.forward, abs(delta))
+        return self
+
+class RightEngine(Engine):
+    def retract(self, delta):
+        print 'right-retract'
+        self.towardsLowerBoundary(Engine.forward, abs(delta))
+        return self
+
+    def expand(self, delta):
+        print 'right-expand'
+        self.towardsUpperBoundary(Engine.backward, abs(delta))
+        return self

@@ -1,6 +1,6 @@
 from Queue import LifoQueue, Queue
 
-from illustrator.Engine import Engine
+from illustrator.Engine import Engine, LeftEngine, RightEngine
 from math import sqrt, pow
 import atexit
 
@@ -30,8 +30,8 @@ class Illustrator(object):
                                                                                         hypothenuse))
         self.leftEngineQueue = Queue()
         self.rightEngineQueue = Queue()
-        self.leftEngine = Engine("leftStepper", 1, self.motorHat, left, beltLengths[0], self.leftEngineQueue)
-        self.rightEngine = Engine("rightStepper", 2, self.motorHat, right, beltLengths[1], self.rightEngineQueue)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, left, beltLengths[0], self.leftEngineQueue)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, right, beltLengths[1], self.rightEngineQueue)
         self._currentPosition = initialPositions # in (x, y) coords
 
     def _turnOff(self):
@@ -41,7 +41,7 @@ class Illustrator(object):
         self.motorHat.getMotor(4).run(self.motorHat.RELEASE)
 
     def start(self, findHome = False):
-        atexit.register(self._turnOff())
+        atexit.register(self._turnOff)
         if findHome:
             self.go(0, 0)
 
@@ -50,8 +50,8 @@ class Illustrator(object):
     def go(self, x, y):
         m, b = self.findStraightLineTo(x, y)   # TODO: Do we really need this?
         (targetLeft, targetRight) = triangleLengths((x,y))
-        self.leftEngineQueue.put(targetLeft)
-        self.rightEngineQueue.put(targetRight)
+        self.leftEngineQueue.put(int(targetLeft))
+        self.rightEngineQueue.put(int(targetRight))
         self._currentPosition = (x, y)
 
     def currentPosition(self):

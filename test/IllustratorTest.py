@@ -69,6 +69,11 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(self.testIllustrator.findStraightLineTo(0, 2), (-1, 2))
         self.assertEquals(self.testIllustrator.findStraightLineTo(0, 1), (0, 1))
 
+    def test_picksUpJobsFromQueue(self):
+        illustrator = Illustrator(TestHat(), 10, 10, (1, 1), [Illustrator.MOTOR_DISTANCE + 2, Illustrator.MOTOR_DISTANCE + 2])
+        illustrator.go(10, 10)
+        self.assertEquals(illustrator.currentPosition(), (10, 10))
+
 def assertClose(x, y,):
     if len(x) != len(y): raise Exception("Different array lengths: (%d, %d)" % (len(x), len(y)))
     for i, a in enumerate(x):
