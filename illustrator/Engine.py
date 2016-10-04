@@ -5,8 +5,9 @@ from test.TestClasses import TestHat
 
 class Engine(object):
     __metaclass__ = abc.ABCMeta
-    STEPPER_SPEED = 60
+    STEPPER_SPEED = 10
     stepsPerPhase = 200
+    STEPS_PER_MM = 10
     forward = TestHat.FORWARD
     backward = TestHat.BACKWARD
     style = TestHat.SINGLE
@@ -34,6 +35,13 @@ class Engine(object):
         while True:
             length = self.q.get()
             print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
+            if not length:
+                print 'delta is zero'
+            elif length > 0:
+                self.retract(length)
+            else:
+                self.expand(length)
+	    """
             delta = int(self._curPosition) - int(length)
             if not delta:
                 print 'delta is zero'
@@ -41,6 +49,7 @@ class Engine(object):
                 self.retract(delta)
             else:
                 self.expand(delta)
+	    """
             print '[%s] Current position is: %d' % (self, self._curPosition)
             self.q.task_done()
 
@@ -61,18 +70,18 @@ class Engine(object):
     def towardsUpperBoundary(self, direction, delta):
         if self._curPosition + delta >= self.beltLength():
             self._curPosition = self.beltLength()
-            self.engine.step(self.beltLength() - self._curPosition, direction, Engine.style)
+            self.engine.step((self.beltLength() - self._curPosition)*Engine.STEPS_PER_MM, direction, Engine.style)
         else:
             self._curPosition += delta
-            self.engine.step(int(delta), direction, Engine.style)
+            self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curPosition - delta < 0:
             self._curPosition = 0
-            self.engine.step(self._curPosition, direction, Engine.style)
+            self.engine.step(self._curPosition*Engine.STEPS_PER_MM, direction, Engine.style)
         else:
             self._curPosition -= delta
-            self.engine.step(int(delta), direction, Engine.style)
+            self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
 class LeftEngine(Engine):
     def retract(self, delta):

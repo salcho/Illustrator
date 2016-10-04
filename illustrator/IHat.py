@@ -4,7 +4,7 @@ class IHat(object):
     RELEASE = 1
     FORWARD = 2
     BACKWARD = 3
-    SINGLE = 4
+    SINGLE = 1
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
