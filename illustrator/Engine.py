@@ -36,14 +36,12 @@ class Engine(object):
         while True:
             length = self.q.get()
             if Engine.DEBUG: print '[%s]\tMoving %d from %d = %d' % (self, length, self._curPosition, length + self._curPosition)
-            delta = self._curPosition - length
             if not length:
                 print 'length is zero'
-            elif delta > 0:
+            elif length < 0:
                 self.retract(length)
             else:
                 self.expand(length)
-            self._curPosition += length
             self.q.task_done()
 
     @abc.abstractmethod
@@ -69,7 +67,7 @@ class Engine(object):
             self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
     def towardsLowerBoundary(self, direction, delta):
-        if self._curPosition - delta < 0:
+        if self._curPosition - delta <= 0:
             self._curPosition = 0
             self.engine.step(self._curPosition*Engine.STEPS_PER_MM, direction, Engine.style)
         else:

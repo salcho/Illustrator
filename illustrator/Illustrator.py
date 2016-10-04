@@ -69,9 +69,15 @@ class Illustrator(object):
         m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
         (targetLeft, targetRight) = triangleLengths((x, y))
 
-        for step in range(max(int(targetLeft), int(targetRight))):
-            self.leftEngineQueue.put(1)
-            self.rightEngineQueue.put(1)
+        i = 0
+        j = 0
+        for cnt in range(max(int(targetLeft), int(targetRight))):
+            if i < targetLeft:
+                self.leftEngineQueue.put(1)
+                i += 1
+            if j < targetRight:
+                self.rightEngineQueue.put(1)
+                j += 1
 
         self.leftEngineQueue.join()
         self.rightEngineQueue.join()

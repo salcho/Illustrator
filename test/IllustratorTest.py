@@ -80,8 +80,12 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(illustrator.rightEngine._curPosition, 0)
         illustrator.go(10, 10)
         self.assertEquals(illustrator._currentPosition, (10, 10))
-        self.assertEquals(illustrator.leftEngine._curPosition, 1)
-        self.assertEquals(illustrator.rightEngine._curPosition, 1)
+        self.assertEquals(illustrator.leftEngine._curPosition, 15)
+        self.assertEquals(illustrator.rightEngine._curPosition, 31)
+        illustrator.go(20, 20)
+        self.assertEquals(illustrator._currentPosition, (20, 20))
+        self.assertEquals(illustrator.leftEngine._curPosition, 50)
+        self.assertEquals(illustrator.rightEngine._curPosition, 50)
         #self.assertEquals(illustrator.currentPosition(), (10, 10))
 
 def assertClose(x, y,):
