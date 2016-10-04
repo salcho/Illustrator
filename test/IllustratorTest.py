@@ -1,9 +1,11 @@
-import unittest
 import sys
+import unittest
 
 from illustrator.Engine import Engine
 from illustrator.Illustrator import Illustrator, triangleLengths, cartesianCoords, areClose
-from test.TestClasses import TestHat
+
+from backup.test import TestHat
+
 
 class IllustratorTest(unittest.TestCase):
 

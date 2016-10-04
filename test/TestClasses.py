@@ -1,4 +1,4 @@
-from illustrator.IHat import IHat
+from backup.illustrator.IHat import IHat
 
 class TestHat(IHat):
     def getMotor(self, id):

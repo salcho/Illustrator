@@ -2,8 +2,8 @@ import unittest
 from Queue import Queue
 
 from illustrator.Engine import Engine, LeftEngine, RightEngine
-from illustrator.Illustrator import Illustrator, cartesianCoords
-from test.TestClasses import TestHat
+
+from backup.test import TestHat
 
 
 class EngineTest(unittest.TestCase):
