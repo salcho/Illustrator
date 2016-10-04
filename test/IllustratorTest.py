@@ -29,7 +29,6 @@ class IllustratorTest(unittest.TestCase):
         with self.assertRaises(Exception):
             Illustrator(TestHat(), 1, 1, [1, 1], [Illustrator.MOTOR_DISTANCE/3, Illustrator.MOTOR_DISTANCE/3])
 
-
     def test_convertsToValidTriangleLengths(self):
         invalidLengths = [[-1,1], [1,-1], [-1,-1], [Illustrator.MOTOR_DISTANCE + 1, 1]]
         assertInvalidCases(invalidLengths, triangleLengths)
@@ -84,7 +83,7 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(illustrator.rightEngine._curPosition, 31)
         illustrator.go(20, 20)
         self.assertEquals(illustrator._currentPosition, (20, 20))
-        self.assertEquals(illustrator.leftEngine._curPosition, 50)
+        self.assertEquals(illustrator.leftEngine._curPosition, 44)
         self.assertEquals(illustrator.rightEngine._curPosition, 50)
         #self.assertEquals(illustrator.currentPosition(), (10, 10))
 

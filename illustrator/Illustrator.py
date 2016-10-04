@@ -67,7 +67,7 @@ class Illustrator(object):
 
     def go(self, x, y):
         m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
-        (targetLeft, targetRight) = triangleLengths((x, y))
+        (targetLeft, targetRight) = triangleLengths((abs(x - self._currentPosition[0]), abs(y - self._currentPosition[1])))
 
         i = 0
         j = 0
