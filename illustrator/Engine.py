@@ -10,6 +10,7 @@ class Engine(object):
     forward = TestHat.FORWARD
     backward = TestHat.BACKWARD
     style = TestHat.SINGLE
+    DEBUG = 1
 
     def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue):
         if initialPosition < 0 or initialPosition > beltLength:
@@ -33,15 +34,15 @@ class Engine(object):
     def moveToLength(self):
         while True:
             length = self.q.get()
-            print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
+            if Engine.DEBUG: print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
             delta = int(self._curPosition) - int(length)
             if not delta:
-                print 'delta is zero'
+                if Engine.DEBUG: print 'delta is zero'
             elif delta > 0:
                 self.retract(delta)
             else:
                 self.expand(delta)
-            print '[%s] Current position is: %d' % (self, self._curPosition)
+            if Engine.DEBUG: print '[%s] Current position is: %d' % (self, self._curPosition)
             self.q.task_done()
 
     @abc.abstractmethod
@@ -76,22 +77,22 @@ class Engine(object):
 
 class LeftEngine(Engine):
     def retract(self, delta):
-        print 'left-retract'
+        if Engine.DEBUG: print 'left-retract'
         self.towardsLowerBoundary(Engine.backward, abs(delta))
         return self
 
     def expand(self, delta):
-        print 'left-expand'
+        if Engine.DEBUG: print 'left-expand'
         self.towardsUpperBoundary(Engine.forward, abs(delta))
         return self
 
 class RightEngine(Engine):
     def retract(self, delta):
-        print 'right-retract'
+        if Engine.DEBUG: print 'right-retract'
         self.towardsLowerBoundary(Engine.forward, abs(delta))
         return self
 
     def expand(self, delta):
-        print 'right-expand'
+        if Engine.DEBUG: print 'right-expand'
         self.towardsUpperBoundary(Engine.backward, abs(delta))
         return self

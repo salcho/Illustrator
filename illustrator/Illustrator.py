@@ -12,27 +12,35 @@ class Illustrator(object):
     # initialPositions -> (x, y) initial gondola position
     def __init__(self, hat, width, height, initialPositions, beltLengths):
         if not hat:
-            raise Exception("Null hat instance passed to illustrator")
+            raise Exception("Null HAT. No engines :(")
         self.motorHat = hat
 
-        if width*height < 1:
+        if width*height < 1 or width + height < 0:
             raise Exception("Negative or zero canvas dimensions (%d, %d)" % (width, height))
         self.canvasWidth = width
         self.canvasHeight = height
 
         left, right = triangleLengths(initialPositions)
+        if Engine.DEBUG:
+            self.areBeltsBigEnough(beltLengths, height)
+
+        self.createEngines(beltLengths, initialPositions)
+        self._currentPosition = initialPositions # in (x, y) coords
+
+    def createEngines(self, beltLengths, initialPositions):
+        self.leftEngineQueue = Queue()
+        self.rightEngineQueue = Queue()
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0], self.leftEngineQueue)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1], self.rightEngineQueue)
+
+    def areBeltsBigEnough(self, beltLengths, height):
         hypothenuse = sqrt(pow(Illustrator.MOTOR_DISTANCE, 2) + pow(height, 2))
         if (beltLengths[0] <= hypothenuse and not areClose(beltLengths[0], hypothenuse)) \
                 or (beltLengths[1] <= hypothenuse and not areClose(beltLengths[1], hypothenuse)):
             raise Exception("Belts aren't big enough: (%f, %f) ; minimum length is: %f" % (beltLengths[0],
                                                                                            beltLengths[1],
 
-                                                                                        hypothenuse))
-        self.leftEngineQueue = Queue()
-        self.rightEngineQueue = Queue()
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, left, beltLengths[0], self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, right, beltLengths[1], self.rightEngineQueue)
-        self._currentPosition = initialPositions # in (x, y) coords
+                                                                                           hypothenuse))
 
     def _turnOff(self):
         self.motorHat.getMotor(1).run(self.motorHat.RELEASE)
@@ -60,7 +68,7 @@ class Illustrator(object):
     def findStraightLineTo(self, x, y):
         x = float(x)
         y = float(y)
-        m = None
+
         try:
             m = (self._currentPosition[1] - y)/(self._currentPosition[0] - x)
         except ZeroDivisionError:
@@ -72,15 +80,15 @@ class Illustrator(object):
 
 
 def triangleLengths(coords):
-    leftSide = coords[0]
-    rightSide = coords[1]
-    if leftSide < 0 or rightSide < 0:
-        raise Exception("Negative coords: (%d, %d)" % (leftSide, rightSide))
-    if leftSide > Illustrator.MOTOR_DISTANCE and not areClose(leftSide, Illustrator.MOTOR_DISTANCE):
-        raise Exception("x coordinate out of bounds: (%d > %d)" % (leftSide, Illustrator.MOTOR_DISTANCE))
+    x = coords[0]
+    y = coords[1]
+    if x < 0 or y < 0:
+        raise Exception("Negative coords: (%d, %d)" % (x, y))
+    if x > Illustrator.MOTOR_DISTANCE and not areClose(x, Illustrator.MOTOR_DISTANCE):
+        raise Exception("x coordinate out of bounds: (%d > %d)" % (x, Illustrator.MOTOR_DISTANCE))
 
-    return (sqrt(pow(leftSide, 2) + pow(rightSide, 2)),
-            sqrt(pow(Illustrator.MOTOR_DISTANCE - leftSide, 2) + pow(rightSide, 2)))
+    return (sqrt(pow(x, 2) + pow(y, 2)),
+            sqrt(pow(Illustrator.MOTOR_DISTANCE - x, 2) + pow(y, 2)))
 
 def cartesianCoords(lengths):
     leftLength = lengths[0]
