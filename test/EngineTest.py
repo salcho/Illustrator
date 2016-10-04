@@ -3,7 +3,7 @@ from Queue import Queue
 
 from illustrator.Engine import Engine, LeftEngine, RightEngine
 
-from backup.test import TestHat
+from TestClasses import TestHat
 
 
 class EngineTest(unittest.TestCase):

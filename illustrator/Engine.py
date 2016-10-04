@@ -24,7 +24,7 @@ class Engine(object):
         self._curPosition = initialPosition
         self._beltLength = beltLength
         self.q = instructionQueue
-        self.thread = Thread(target=self.moveToLength)
+        self.thread = Thread(target=self.move)
         self.thread.daemon = True
         self.thread.start()
 
@@ -32,34 +32,18 @@ class Engine(object):
         return self.name
 
     # TODO: Which is right, forward or backward? - this assumes left stepper
-    def moveToLength(self):
+    def move(self):
         while True:
             length = self.q.get()
-<<<<<<< HEAD
-            print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
+            if Engine.DEBUG: print '[%s]\tMoving %d from %d = %d' % (self, length, self._curPosition, length + self._curPosition)
+            delta = self._curPosition - length
             if not length:
-                print 'delta is zero'
-            elif length > 0:
+                print 'length is zero'
+            elif delta > 0:
                 self.retract(length)
             else:
                 self.expand(length)
-	    """
-=======
-            if Engine.DEBUG: print '[%s] Going to length %d from %d' % (self, length, self._curPosition)
->>>>>>> 175443a31842df98b39b1c65febdb4b8b2de99ec
-            delta = int(self._curPosition) - int(length)
-            if not delta:
-                if Engine.DEBUG: print 'delta is zero'
-            elif delta > 0:
-                self.retract(delta)
-            else:
-                self.expand(delta)
-<<<<<<< HEAD
-	    """
-            print '[%s] Current position is: %d' % (self, self._curPosition)
-=======
-            if Engine.DEBUG: print '[%s] Current position is: %d' % (self, self._curPosition)
->>>>>>> 175443a31842df98b39b1c65febdb4b8b2de99ec
+            self._curPosition += length
             self.q.task_done()
 
     @abc.abstractmethod

@@ -4,10 +4,11 @@ from illustrator.Engine import Engine, LeftEngine, RightEngine
 from math import sqrt, pow
 import atexit
 
+
 class Illustrator(object):
     MOTOR_DISTANCE = 40
 
-    STEP_IN_MM = 1 # Resolution at which to calculate path
+    STEP_IN_MM = 1  # Resolution at which to calculate path
 
     # initialPositions -> (x, y) initial gondola position
     def __init__(self, hat, width, height, initialPositions, beltLengths):
@@ -15,23 +16,32 @@ class Illustrator(object):
             raise Exception("Null HAT. No engines :(")
         self.motorHat = hat
 
-        if width*height < 1 or width + height < 0:
+        if width * height < 1 or width + height < 0:
             raise Exception("Negative or zero canvas dimensions (%d, %d)" % (width, height))
         self.canvasWidth = width
         self.canvasHeight = height
 
-        left, right = triangleLengths(initialPositions)
         if Engine.DEBUG:
+            self.isValidInitialPos(beltLengths, initialPositions)
             self.areBeltsBigEnough(beltLengths, height)
 
         self.createEngines(beltLengths, initialPositions)
-        self._currentPosition = initialPositions # in (x, y) coords
+        self._currentPosition = initialPositions  # in (x, y) coords
+
+    def isValidInitialPos(self, beltLengths, initialPositions):
+        if (initialPositions[0] > beltLengths[0] or initialPositions[1] > beltLengths[1]):
+            raise Exception("Initial position (%f, %f) is out-bounds: (%f, %f)" % (initialPositions[0],
+                                                                                   initialPositions[0],
+                                                                                   beltLengths[0],
+                                                                                   beltLengths[0]))
 
     def createEngines(self, beltLengths, initialPositions):
         self.leftEngineQueue = Queue()
         self.rightEngineQueue = Queue()
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0], self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1], self.rightEngineQueue)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0],
+                                     self.leftEngineQueue)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],
+                                       self.rightEngineQueue)
 
     def areBeltsBigEnough(self, beltLengths, height):
         hypothenuse = sqrt(pow(Illustrator.MOTOR_DISTANCE, 2) + pow(height, 2))
@@ -48,7 +58,7 @@ class Illustrator(object):
         self.motorHat.getMotor(2).run(self.motorHat.RELEASE)
         self.motorHat.getMotor(4).run(self.motorHat.RELEASE)
 
-    def start(self, findHome = False):
+    def start(self, findHome=False):
         atexit.register(self._turnOff)
         if findHome:
             self.go(0, 0)
@@ -56,13 +66,16 @@ class Illustrator(object):
         return self
 
     def go(self, x, y):
-        m, b = self.findStraightLineTo(x, y)   # TODO: Do we really need this?
-        (targetLeft, targetRight) = triangleLengths((x,y))
-	"""
-	for step in range(max(int(targetLeft), int(targetRight))):
-        	self.leftEngineQueue.put(1)
-        	self.rightEngineQueue.put(1)
-	"""
+        m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
+        (targetLeft, targetRight) = triangleLengths((x, y))
+
+        for step in range(max(int(targetLeft), int(targetRight))):
+            self.leftEngineQueue.put(1)
+            self.rightEngineQueue.put(1)
+
+        self.leftEngineQueue.join()
+        self.rightEngineQueue.join()
+
         self.leftEngineQueue.put(int(targetLeft))
         self.rightEngineQueue.put(int(targetRight))
         self._currentPosition = (x, y)
@@ -74,14 +87,14 @@ class Illustrator(object):
         x = float(x)
         y = float(y)
 
+        m = None
         try:
-            m = (self._currentPosition[1] - y)/(self._currentPosition[0] - x)
+            m = (self._currentPosition[1] - y) / (self._currentPosition[0] - x)
         except ZeroDivisionError:
-            return (m, None) # Slope is infinite - vertical movement
+            return (m, None)  # Slope is infinite - vertical movement
 
-        b = y - m*x
+        b = y - m * x
         return (m, b)
-
 
 
 def triangleLengths(coords):
@@ -95,19 +108,22 @@ def triangleLengths(coords):
     return (sqrt(pow(x, 2) + pow(y, 2)),
             sqrt(pow(Illustrator.MOTOR_DISTANCE - x, 2) + pow(y, 2)))
 
+
 def cartesianCoords(lengths):
     leftLength = lengths[0]
     rightLength = lengths[1]
     if leftLength * rightLength < 1 or leftLength + rightLength < 0:
         raise Exception("Negative or zero triangle lengths: (%d, %d)" % (leftLength, rightLength))
 
-    semi = (Illustrator.MOTOR_DISTANCE + leftLength + rightLength)/2
+    semi = (Illustrator.MOTOR_DISTANCE + leftLength + rightLength) / 2
     if Illustrator.MOTOR_DISTANCE >= semi:
         raise Exception("Lengths are too short: impossible triangle")
 
-    y = (2.0/Illustrator.MOTOR_DISTANCE)*(sqrt(semi * (semi - leftLength) * (semi - rightLength) * (semi - Illustrator.MOTOR_DISTANCE)))
+    y = (2.0 / Illustrator.MOTOR_DISTANCE) * (
+    sqrt(semi * (semi - leftLength) * (semi - rightLength) * (semi - Illustrator.MOTOR_DISTANCE)))
     x = sqrt(pow(float(leftLength), 2) - pow(float(y), 2))
     return (x, y)
 
+
 def areClose(a, b, rel_tol=1e-09, abs_tol=0.0):
-    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)

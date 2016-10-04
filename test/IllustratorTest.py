@@ -4,15 +4,16 @@ import unittest
 from illustrator.Engine import Engine
 from illustrator.Illustrator import Illustrator, triangleLengths, cartesianCoords, areClose
 
-from backup.test import TestHat
-
+from TestClasses import TestHat
 
 class IllustratorTest(unittest.TestCase):
-
 
     def setUp(self):
         self.testIllustrator = Illustrator(TestHat(), 10, 10, [1, 1],
                                            [Illustrator.MOTOR_DISTANCE + 2, Illustrator.MOTOR_DISTANCE + 2])
+
+    def tearDown(self):
+        Engine.DEBUG = 1
 
     def test_validatesArguments(self):
         # HAT
@@ -24,14 +25,9 @@ class IllustratorTest(unittest.TestCase):
         # canvas height
         with self.assertRaises(Exception):
             Illustrator(TestHat(), 10, 0, [1, 1], [1, 1])
-        # 0 initial position
-        with self.assertRaises(Exception):
-            Illustrator(TestHat(), 10, 1, [0, 1], [1, 1])
-        with self.assertRaises(Exception):
-            Illustrator(TestHat(), 10, 1, [1, 0], [1, 1])
         # belt lengths insufficient
         with self.assertRaises(Exception):
-            Illustrator(TestHat(), 1, 1, [1, 1], [Illustrator.MOTOR_DISTANCE/2, Illustrator.MOTOR_DISTANCE/2])
+            Illustrator(TestHat(), 1, 1, [1, 1], [Illustrator.MOTOR_DISTANCE/3, Illustrator.MOTOR_DISTANCE/3])
 
 
     def test_convertsToValidTriangleLengths(self):
@@ -78,13 +74,14 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(illustrator.currentPosition(), (10, 10))
 
     def test(self):
-        Engine.DEBUG = 0
         illustrator = Illustrator(TestHat(), 30, 30, (0, 0), (50,50))
         self.assertEquals(illustrator._currentPosition, (0, 0))
         self.assertEquals(illustrator.leftEngine._curPosition, 0)
         self.assertEquals(illustrator.rightEngine._curPosition, 0)
-        illustrator.go(1, 1)
-
+        illustrator.go(10, 10)
+        self.assertEquals(illustrator._currentPosition, (10, 10))
+        self.assertEquals(illustrator.leftEngine._curPosition, 1)
+        self.assertEquals(illustrator.rightEngine._curPosition, 1)
         #self.assertEquals(illustrator.currentPosition(), (10, 10))
 
 def assertClose(x, y,):
