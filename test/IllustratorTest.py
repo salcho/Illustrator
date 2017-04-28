@@ -9,7 +9,7 @@ from TestClasses import TestHat
 class IllustratorTest(unittest.TestCase):
 
     def setUp(self):
-        self.testIllustrator = Illustrator(TestHat(), 10, 10, [1, 1],
+        self.testIllustrator = Illustrator(TestHat(), (10, 10), [1, 1],
                                            [Illustrator.MOTOR_DISTANCE + 2, Illustrator.MOTOR_DISTANCE + 2])
 
     def tearDown(self):
@@ -18,16 +18,16 @@ class IllustratorTest(unittest.TestCase):
     def test_validatesArguments(self):
         # HAT
         with self.assertRaises(Exception):
-            Illustrator(None, 1, 1, [1, 1], [1, 1])
+            Illustrator(None, (1, 1), [1, 1], [1, 1])
         # canvas width
         with self.assertRaises(Exception):
-            Illustrator(TestHat(), 0, 10, [1, 1], [1, 1])
+            Illustrator(TestHat(), (0, 10), [1, 1], [1, 1])
         # canvas height
         with self.assertRaises(Exception):
-            Illustrator(TestHat(), 10, 0, [1, 1], [1, 1])
+            Illustrator(TestHat(), (10, 0), [1, 1], [1, 1])
         # belt lengths insufficient
         with self.assertRaises(Exception):
-            Illustrator(TestHat(), 1, 1, [1, 1], [Illustrator.MOTOR_DISTANCE/3, Illustrator.MOTOR_DISTANCE/3])
+            Illustrator(TestHat(), (1, 1), [1, 1], [Illustrator.MOTOR_DISTANCE/3, Illustrator.MOTOR_DISTANCE/3])
 
     def test_convertsToValidTriangleLengths(self):
         invalidLengths = [[-1,1], [1,-1], [-1,-1], [Illustrator.MOTOR_DISTANCE + 1, 1]]
@@ -42,17 +42,17 @@ class IllustratorTest(unittest.TestCase):
         assertClose(cartesianCoords(triangleLengths(cartesianCoords(triangleLengths(coordinates)))), coordinates)
 
     def test_goesHome(self):
-            self.assertEquals(Illustrator(TestHat(), 1, 1, [1, 1], [sys.maxint, sys.maxint])
+            self.assertEquals(Illustrator(TestHat(), (1, 1), [1, 1], [sys.maxint, sys.maxint])
                                 .start(findHome = True)
                                 .currentPosition(),
                               (0, 0))
-            self.assertNotEquals(Illustrator(TestHat(), 1, 1, [1, 1], [sys.maxint, sys.maxint])
+            self.assertNotEquals(Illustrator(TestHat(), (1, 1), [1, 1], [sys.maxint, sys.maxint])
                                 .start()
                                 .currentPosition(),
                               (1, 1))
             # Default option
-            self.assertNotEquals(Illustrator(TestHat(), 1, 1, [1, 1], [sys.maxint, sys.maxint])
-                                .start(findHome = False)
+            self.assertNotEquals(Illustrator(TestHat(), (1, 1), [1, 1], [sys.maxint, sys.maxint])
+                                .start()
                                 .currentPosition(),
                               (1, 1))
 
@@ -68,24 +68,16 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(self.testIllustrator.findStraightLineTo(0, 1), (0, 1))
 
     def test_picksUpJobsFromQueue(self):
-        illustrator = Illustrator(TestHat(), 10, 10, (1, 1), [Illustrator.MOTOR_DISTANCE + 2, Illustrator.MOTOR_DISTANCE + 2])
+        illustrator = Illustrator(TestHat(), (10, 10), (1, 1), [Illustrator.MOTOR_DISTANCE + 2, Illustrator.MOTOR_DISTANCE + 2])
         illustrator.go(10, 10)
         self.assertEquals(illustrator.currentPosition(), (10, 10))
 
     def test(self):
-        illustrator = Illustrator(TestHat(), 30, 30, (0, 0), (50,50))
-        self.assertEquals(illustrator._currentPosition, (0, 0))
-        self.assertEquals(illustrator.leftEngine._curPosition, 0)
-        self.assertEquals(illustrator.rightEngine._curPosition, 0)
+        hat = TestHat()
+        illustrator = Illustrator(hat, (30, 30), (20, 20), (50, 50))
         illustrator.go(10, 10)
-        self.assertEquals(illustrator._currentPosition, (10, 10))
-        self.assertEquals(illustrator.leftEngine._curPosition, 15)
-        self.assertEquals(illustrator.rightEngine._curPosition, 31)
-        illustrator.go(20, 20)
-        self.assertEquals(illustrator._currentPosition, (20, 20))
-        self.assertEquals(illustrator.leftEngine._curPosition, 44)
-        self.assertEquals(illustrator.rightEngine._curPosition, 50)
-        #self.assertEquals(illustrator.currentPosition(), (10, 10))
+        print hat.stepper.stepSequence
+
 
 def assertClose(x, y,):
     if len(x) != len(y): raise Exception("Different array lengths: (%d, %d)" % (len(x), len(y)))

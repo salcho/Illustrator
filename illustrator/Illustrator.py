@@ -11,11 +11,12 @@ class Illustrator(object):
     STEP_IN_MM = 1  # Resolution at which to calculate path
 
     # initialPositions -> (x, y) initial gondola position
-    def __init__(self, hat, width, height, initialPositions, beltLengths):
+    def __init__(self, hat, canvasDimensions, initialPositions, beltLengths):
         if not hat:
             raise Exception("Null HAT. No engines :(")
         self.motorHat = hat
 
+        width, height = canvasDimensions
         if width * height < 1 or width + height < 0:
             raise Exception("Negative or zero canvas dimensions (%d, %d)" % (width, height))
         self.canvasWidth = width
@@ -36,12 +37,8 @@ class Illustrator(object):
                                                                                    beltLengths[0]))
 
     def createEngines(self, beltLengths, initialPositions):
-        self.leftEngineQueue = Queue()
-        self.rightEngineQueue = Queue()
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0],
-                                     self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],
-                                       self.rightEngineQueue)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1])
 
     def areBeltsBigEnough(self, beltLengths, height):
         hypothenuse = sqrt(pow(Illustrator.MOTOR_DISTANCE, 2) + pow(height, 2))
@@ -67,25 +64,41 @@ class Illustrator(object):
 
     def go(self, x, y):
         m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
-        (targetLeft, targetRight) = triangleLengths((abs(x - self._currentPosition[0]), abs(y - self._currentPosition[1])))
+        print 'current position: (%d, %d)' % (self._currentPosition[0], self._currentPosition[1])
+        print 'going to : (%d, %d)' % (x,y)
+        if m == None: print 'm is none'
+        else:
+            print 'm = %f, b = %f' % (m, b)
+        (targetLeft, targetRight) = triangleLengths((x, y))
+        print 'targetLeft = %f, targetRight = %f' % (targetLeft, targetRight)
 
-        i = 0
-        j = 0
-        for cnt in range(max(int(targetLeft), int(targetRight))):
-            if i < targetLeft:
-                self.leftEngineQueue.put(1)
-                i += 1
-            if j < targetRight:
-                self.rightEngineQueue.put(1)
-                j += 1
+        (curLeft, curRight) = triangleLengths(self.currentPosition())
+        print 'current triangle: (%d, %d)' % (curLeft, curRight)
+        deltaX = -(curLeft - targetLeft)
+        print 'deltaX = %f' % deltaX
+        deltaY = -(curRight - targetRight)
+        print 'deltaY = %f' % deltaY
 
-        self.leftEngineQueue.join()
-        self.rightEngineQueue.join()
+        if m == None:
+            pass
+        elif m == 0:
+            pass
+        else:
+            i = 0
+            j = 0
+            xsign = -1 if deltaX < 0 else 1
+            ysign = -1 if deltaY < 0 else 1
+            for cnt in range(max(abs(int(deltaX)), abs(int(deltaY)))):
+                if i < abs(deltaX):
+                    self.leftEngine.move(xsign)
+                    i += 1
+                if j < abs(deltaY):
+                    for i in range(int(abs(m))):
+                        self.rightEngine.move(ysign)
+                        j += 1
 
-        self.leftEngineQueue.put(int(targetLeft))
-        self.rightEngineQueue.put(int(targetRight))
         self._currentPosition = (x, y)
-
+        pass
     def currentPosition(self):
         return self._currentPosition
 

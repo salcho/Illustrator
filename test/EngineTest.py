@@ -10,23 +10,23 @@ class EngineTest(unittest.TestCase):
 
     def test_validatesInitialPosition(self):
         with self.assertRaises(Exception):
-            Engine("test", 1, TestHat(), -1, 1, Queue())
+            Engine("test", 1, TestHat(), -1, 1)
 
         with self.assertRaises(Exception):
-            Engine("test", 1, TestHat(), 11, 10, Queue())
+            Engine("test", 1, TestHat(), 11, 10)
 
         try:
-            LeftEngine("test", 1, TestHat(), 0, 1, Queue())
-            RightEngine("test", 1, TestHat(), 0, 1, Queue())
+            LeftEngine("test", 1, TestHat(), 0, 1)
+            RightEngine("test", 1, TestHat(), 0, 1)
         except:
             self.fail("Engine rejects initial position 0")
 
     def test_remembersPosition(self):
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).expand(100).currentPosition(), 100)
-        self.assertEquals(RightEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).currentPosition(), 0)
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 100, Queue()).retract(100).expand(50).currentPosition(), 50)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 50, 100).expand(10).retract(10).currentPosition(), 50)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 50, 100).retract(10).currentPosition(), 40)
+        self.assertRaises(LeftEngine("test", 1, TestHat(), 50, 100).retract(10).expand(50).currentPosition())
 
     def test_staysWithinLimits(self):
         # Moves to the closest boundary if delta is too big or too small
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 0, 10, Queue()).retract(10).retract(10).currentPosition(), 0)
-        self.assertEquals(RightEngine("test", 1, TestHat(), 0, 10, Queue()).retract(5).expand(20).currentPosition(), 10)
+        self.assertRaises(StandardError, LeftEngine("test", 1, TestHat(), 5, 10).retract, args=5)
+        self.assertRaises(StandardError, RightEngine("test", 1, TestHat(), 5, 10).retract(4).expand, args = 20)
