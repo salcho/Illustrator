@@ -1,15 +1,28 @@
 import abc
-from test.TestClasses import TestHat
 
+FORWARD = -1
+BACKWARD = -1
+STYLE = -1
+
+try:
+    from Adafruit_MotorHAT import Adafruit_MotorHAT
+    FORWARD = Adafruit_MotorHAT.FORWARD
+    BACKWARD = Adafruit_MotorHAT.BACKWARD
+    STYLE = Adafruit_MotorHAT.SINGLE
+except:
+    FORWARD = 1
+    BACKWARD = 1
+    STYLE = 1
+    pass
+
+from test.TestClasses import TestHat
 
 class Engine(object):
     __metaclass__ = abc.ABCMeta
     STEPPER_SPEED = 10
     stepsPerPhase = 200
     STEPS_PER_MM = 10
-    forward = TestHat.FORWARD
-    backward = TestHat.BACKWARD
-    style = TestHat.SINGLE
+    style = 1 # Adafruit_MotorHAT.SINGLE
     DEBUG = 1
 
     def __init__(self, name, id, hat, initialPosition, beltLength):
@@ -59,7 +72,7 @@ class Engine(object):
             self._curLength += delta
             steps = int(delta) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
-                print '[%s] Steps per mm: %d' % (self, steps)
+                print '[%s] Steps per mm: %d towards %s' % (self, steps, direction)
 
             self.engine.step(steps, direction, Engine.style)
 
@@ -77,18 +90,18 @@ class Engine(object):
 
 class LeftEngine(Engine):
     def retract(self, delta):
-        self.towardsLowerBoundary(Engine.forward, abs(delta))
+        self.towardsLowerBoundary(BACKWARD, abs(delta))
         return self
 
     def expand(self, delta):
-        self.towardsUpperBoundary(Engine.backward, abs(delta))
+        self.towardsUpperBoundary(FORWARD, abs(delta))
         return self
 
 class RightEngine(Engine):
     def retract(self, delta):
-        self.towardsLowerBoundary(Engine.forward, abs(delta))
+        self.towardsLowerBoundary(FORWARD, abs(delta))
         return self
 
     def expand(self, delta):
-        self.towardsUpperBoundary(Engine.backward, abs(delta))
+        self.towardsUpperBoundary(BACKWARD, abs(delta))
         return self
