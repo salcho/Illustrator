@@ -1,3 +1,4 @@
+from Queue import Queue
 import abc
 import atexit
 from math import sqrt, pow
@@ -81,4 +82,17 @@ class Illustrator(Draws):
         b = y - m * x
         return (m, b)
 
+    def isValidInitialPos(self, beltLengths, initialPositions):
+        if (initialPositions[0] > beltLengths[0] or initialPositions[1] > beltLengths[1]):
+            raise Exception("Initial position (%f, %f) is out-bounds: (%f, %f)" % (initialPositions[0],
+                                                                                   initialPositions[0],
+                                                                                   beltLengths[0],
+                                                                                   beltLengths[0]))
 
+    def createEngines(self, beltLengths, initialPositions):
+        self.leftEngineQueue = Queue()
+        self.rightEngineQueue = Queue()
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
+                                     #self.leftEngineQueue)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
+                                       #self.rightEngineQueue)

@@ -7,11 +7,11 @@ from illustrator.CartesianIllustrator import cartesianCoords, CartesianIllustrat
 
 from TestClasses import TestHat
 
-class IllustratorTest(unittest.TestCase):
 
+class IllustratorTest(unittest.TestCase):
     def setUp(self):
         self.testIllustrator = CartesianIllustrator(TestHat(), (10, 10), [1, 1],
-                                           [MOTOR_DISTANCE + 2, MOTOR_DISTANCE + 2])
+                                                    [MOTOR_DISTANCE + 2, MOTOR_DISTANCE + 2])
 
     def tearDown(self):
         Engine.DEBUG = 1
@@ -28,40 +28,46 @@ class IllustratorTest(unittest.TestCase):
             CartesianIllustrator(TestHat(), canvasDimensions=(10, 0), initialPositions=[1, 1], beltLengths=[1, 1])
         # belt lengths insufficient
         with self.assertRaises(Exception):
-            CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1], beltLengths=[MOTOR_DISTANCE/3, MOTOR_DISTANCE/3])
+            CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
+                                 beltLengths=[MOTOR_DISTANCE / 3, MOTOR_DISTANCE / 3])
 
     def test_convertsToValidTriangleLengths(self):
-        invalidLengths = [[-1,1], [1,-1], [-1,-1], [MOTOR_DISTANCE + 1, 1]]
+        invalidLengths = [[-1, 1], [1, -1], [-1, -1], [MOTOR_DISTANCE + 1, 1]]
         assertInvalidCases(invalidLengths, self.testIllustrator.triangleLengths)
 
-        invalidLengths = [[0,0], [-1,1], [1, -1], [-1, -1], [MOTOR_DISTANCE/2, MOTOR_DISTANCE/2]]
+        invalidLengths = [[0, 0], [-1, 1], [1, -1], [-1, -1], [MOTOR_DISTANCE / 2, MOTOR_DISTANCE / 2]]
         assertInvalidCases(invalidLengths, cartesianCoords)
 
-        coordinates = (float(MOTOR_DISTANCE/2), float(MOTOR_DISTANCE))
+        coordinates = (float(MOTOR_DISTANCE / 2), float(MOTOR_DISTANCE))
         self.assertClose(cartesianCoords(self.testIllustrator.triangleLengths(coordinates)), coordinates)
         self.assertClose(self.testIllustrator.triangleLengths(cartesianCoords(coordinates)), coordinates)
-        self.assertClose(cartesianCoords(self.testIllustrator.triangleLengths(cartesianCoords(self.testIllustrator.triangleLengths(coordinates)))), coordinates)
+        self.assertClose(cartesianCoords(
+            self.testIllustrator.triangleLengths(cartesianCoords(self.testIllustrator.triangleLengths(coordinates)))),
+                         coordinates)
 
     def test_goesHome(self):
-            self.assertEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions = [1, 1], beltLengths = [sys.maxint, sys.maxint])
-                                .start(findHome = True)
-                                .currentPosition(),
-                              (0, 0))
-            self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions = [1, 1], beltLengths = [sys.maxint, sys.maxint])
-                                .start()
-                                .currentPosition(),
-                              (1, 1))
-            # Default option
-            self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions = [1, 1], beltLengths = [sys.maxint, sys.maxint])
-                                .start()
-                                .currentPosition(),
-                              (1, 1))
+        self.assertEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
+                                               beltLengths=[sys.maxint, sys.maxint])
+                          .start(findHome=True)
+                          .currentPosition(),
+                          (0, 0))
+        self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
+                                                  beltLengths=[sys.maxint, sys.maxint])
+                             .start()
+                             .currentPosition(),
+                             (1, 1))
+        # Default option
+        self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
+                                                  beltLengths=[sys.maxint, sys.maxint])
+                             .start()
+                             .currentPosition(),
+                             (1, 1))
 
     def test_findsStraightLine(self):
         self.assertEquals(self.testIllustrator.findStraightLineTo(0, 0), (1, 0))
-        self.assertEquals(self.testIllustrator.findStraightLineTo(1, 0), (None, None)) # Vertical movement
+        self.assertEquals(self.testIllustrator.findStraightLineTo(1, 0), (None, None))  # Vertical movement
         self.assertEquals(self.testIllustrator.findStraightLineTo(2, 0), (-1, 2))
-        self.assertEquals(self.testIllustrator.findStraightLineTo(2, 1), (0, 1)) # zero - horizontal
+        self.assertEquals(self.testIllustrator.findStraightLineTo(2, 1), (0, 1))  # zero - horizontal
 
         self.assertEquals(self.testIllustrator.findStraightLineTo(2, 2), (1, 0))
         self.assertEquals(self.testIllustrator.findStraightLineTo(1, 2), (None, None))
@@ -79,18 +85,18 @@ class IllustratorTest(unittest.TestCase):
         illustrator.go(10, 10)
         print hat.stepper.stepSequence
 
-
-    def assertClose(self, x, y,):
+    def assertClose(self, x, y):
         if len(x) != len(y): raise Exception("Different array lengths: (%d, %d)" % (len(x), len(y)))
         for i, a in enumerate(x):
             b = y[i]
             if not self.testIllustrator.areClose(a, b): raise AssertionError("Not close: %d -> %d" % (a, b))
         return True
 
+
 def assertInvalidCases(invalidCases, func):
     for invalidCase in invalidCases:
-            try:
-                func(invalidCase)
-            except:
-                continue
-            raise AssertionError("Exception not raised for values: %s" % invalidCase)
+        try:
+            func(invalidCase)
+        except:
+            continue
+        raise AssertionError("Exception not raised for values: %s" % invalidCase)

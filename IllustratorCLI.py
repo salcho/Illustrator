@@ -1,9 +1,11 @@
 from Adafruit_MotorHAT import *
+
+from illustrator import CartesianIllustrator
 from illustrator.Illustrator import *
 import threading
 
 hat = Adafruit_MotorHAT()
-illustrator = Illustrator(hat, 30, 30, (0, 0), (50,50))
+illustrator = CartesianIllustrator(hat, 30, 30, (0, 0), (50,50))
 illustrator.start()
 
 orig = exit
