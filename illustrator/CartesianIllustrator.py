@@ -1,10 +1,19 @@
+import logging
 from math import sqrt, pow
 
+from illustrator.Engine import Engine
 from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 
 
 class CartesianIllustrator(Illustrator):
     def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, beltLengths=None):
+        if Engine.DEBUG:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format="%(asctime)s %(levelname)-20s %(stepper)-20s %(message)s",
+                datefmt='%H:%M:%S'
+            )
+
         super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, beltLengths)
 
     def getBeltLengthsFor(self, initialPositions):

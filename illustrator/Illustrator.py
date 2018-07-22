@@ -1,3 +1,4 @@
+import logging
 from Queue import Queue
 import abc
 import atexit
@@ -98,8 +99,8 @@ class Illustrator(Draws):
         self.rightEngineQueue = Queue()
 
         # CONVENTION: Start with the left belt completely retracted
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0], self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1], self.rightEngineQueue)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0], self.leftEngineQueue, logging.getLogger('leftEngine'))
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1], self.rightEngineQueue, logging.getLogger('rightEngine'))
 
     @abc.abstractmethod
     def getBeltLengthsFor(self, initialPositions):

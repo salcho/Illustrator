@@ -1,4 +1,5 @@
 import abc
+import logging
 from threading import Thread
 
 FORWARD = -1
@@ -16,17 +17,16 @@ except:
     STYLE = 3
     pass
 
-from test.TestClasses import TestHat
-
 class Engine(object):
     __metaclass__ = abc.ABCMeta
     STEPPER_SPEED = 10
     stepsPerPhase = 200
     STEPS_PER_MM = 10
-    style = 1 # Adafruit_MotorHAT.SINGLE
     DEBUG = 1
 
-    def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue):
+    def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue, logger=logging.getLogger('Engine')):
+        self.logger = logger
+
         if initialPosition < 0 or initialPosition > beltLength:
             raise Exception("Invalid initial position for engine %d" % id)
         self.motorHat = hat
@@ -41,10 +41,14 @@ class Engine(object):
         self.thread.daemon = True
         self.thread.start()
 
+    def log(self, msg):
+        if Engine.DEBUG:
+            self.logger.debug(msg, extra={"stepper": self})
+
     def moveToLength(self):
         while True:
             delta = self.q.get()
-            print '[%s] Moving delta %d, from %d' % (self, delta, self._curLength)
+            self.log('Moving delta %d, from %d' % (delta, self._curLength))
             self.move(delta)
             self.q.task_done()
 
@@ -53,14 +57,14 @@ class Engine(object):
 
     def move(self, delta):
         if delta > 0:
-            if Engine.DEBUG: print '[%s]\tExpanding %d from %d' % (self, delta, self._curLength)
+            self.log('Expanding %d from %d' % (delta, self._curLength))
             self.expand(delta)
         elif delta < 0:
-            if Engine.DEBUG: print '[%s]\tRetracting %d from %d' % (self, delta, self._curLength)
+            self.log('Retracting %d from %d' % (delta, self._curLength))
             self.retract(delta)
         else:
             pass
-        print '[%s] Current position: %d' % (self, self._curLength)
+        self.log('Current position: %d' % (self._curLength))
 
     @abc.abstractmethod
     def retract(self, delta):
@@ -80,32 +84,32 @@ class Engine(object):
         if self._curLength + delta >= self.beltLength():
             steps = (self.beltLength() - int(self._curLength)) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
-                print '[%s] Moving to boundary. Steps per mm: %d towards %s' % (self, steps, direction)
+                self.log('[%s] Moving to boundary. Steps per mm: %d towards %s\n' % (self, steps, fromInt(direction)))
 
-            self.engine.step(steps, direction, Engine.style)
+            self.engine.step(steps, direction, STYLE)
             self._curLength = self.beltLength()
         else:
             self._curLength += delta
             steps = int(delta) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
-                print '[%s] Steps per mm: %d towards %s' % (self, steps, direction)
+                self.log('[%s] Steps per mm: %d towards %s\n' % (self, steps, fromInt(direction)))
 
-            self.engine.step(steps, direction, Engine.style)
+            self.engine.step(steps, direction, STYLE)
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curLength - delta <= 0:
             steps = int(self._curLength) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
-                print '[%s] Moving to boundary. Steps per mm: %d towards %s' % (self, steps, direction)
+                self.log('[%s] Moving to boundary. Steps per mm: %d towards %s\n' % (self, steps, fromInt(direction)))
 
-            self.engine.step(steps, direction, Engine.style)
+            self.engine.step(steps, direction, STYLE)
             self._curLength = 0
         else:
             self._curLength -= delta
             steps = int(delta) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
-                print '[%s] Steps per mm: %d towards %s' % (self, steps, direction)
-            self.engine.step(steps, direction, Engine.style)
+                self.log('[%s] Steps per mm: %d towards %s\n' % (self, steps, fromInt(direction)))
+            self.engine.step(steps, direction, STYLE)
 
 class LeftEngine(Engine):
 
@@ -125,3 +129,8 @@ class RightEngine(Engine):
     def expand(self, delta):
         self.towardsUpperBoundary(BACKWARD, abs(delta))
         return self
+
+def fromInt(direction):
+    if direction == FORWARD: return "FORWARD"
+    if direction == BACKWARD: return "BACKWARD"
+    return None
