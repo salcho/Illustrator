@@ -5,7 +5,7 @@ from math import sqrt, pow
 
 from illustrator.Engine import Engine, LeftEngine, RightEngine
 
-MOTOR_DISTANCE = 40
+CANVAS_DIMENSIONS = 40
 
 class Draws(object):
     @abc.abstractmethod
@@ -32,7 +32,10 @@ class Illustrator(Draws):
             self.isValidInitialPos(beltLengths, initialPositions)
             self.areBeltsBigEnough(beltLengths, height)
 
-        self.createEngines(beltLengths, initialPositions)
+        initialBeltLengths = self.getBeltLengthsFor(initialPositions)
+        print "Initial belt lengths are: (%d, %d)" % (initialBeltLengths[0], initialBeltLengths[1])
+        self.createEngines(beltLengths, initialBeltLengths)
+
         self._currentPosition = initialPositions  # in (x, y) coords
         print "Initial position is: (%d, %d)" % (self._currentPosition[0], self._currentPosition[1])
 
@@ -45,7 +48,7 @@ class Illustrator(Draws):
 
     @abc.abstractmethod
     def areBeltsBigEnough(self, beltLengths, height):
-        hypothenuse = sqrt(pow(MOTOR_DISTANCE, 2) + pow(height, 2))
+        hypothenuse = sqrt(pow(CANVAS_DIMENSIONS, 2) + pow(height, 2))
         # TODO: belts should be smaller. full stop.
         if (beltLengths[0] <= hypothenuse and not self.areClose(beltLengths[0], hypothenuse)) \
                 or (beltLengths[1] <= hypothenuse and not self.areClose(beltLengths[1], hypothenuse)):
@@ -84,7 +87,7 @@ class Illustrator(Draws):
         return (m, b)
 
     def isValidInitialPos(self, beltLengths, initialPositions):
-        if (initialPositions[0] > beltLengths[0] or initialPositions[1] > beltLengths[1]):
+        if initialPositions[0] > beltLengths[0] or initialPositions[1] > beltLengths[1]:
             raise Exception("Initial position (%f, %f) is out-bounds: (%f, %f)" % (initialPositions[0],
                                                                                    initialPositions[0],
                                                                                    beltLengths[0],
@@ -95,9 +98,9 @@ class Illustrator(Draws):
         self.rightEngineQueue = Queue()
 
         # CONVENTION: Start with the left belt completely retracted
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, 0, beltLengths[0])
-        #self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
-                                     #self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, beltLengths[1], beltLengths[1],)
-        #self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
-                                       #self.rightEngineQueue)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
+
+    @abc.abstractmethod
+    def getBeltLengthsFor(self, initialPositions):
+        pass

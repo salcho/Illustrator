@@ -2,7 +2,7 @@ import sys
 import unittest
 
 from illustrator.Engine import Engine
-from illustrator.Illustrator import Illustrator, MOTOR_DISTANCE
+from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 from illustrator.CartesianIllustrator import cartesianCoords, CartesianIllustrator
 
 from TestClasses import TestHat
@@ -10,8 +10,7 @@ from TestClasses import TestHat
 
 class IllustratorTest(unittest.TestCase):
     def setUp(self):
-        self.testIllustrator = CartesianIllustrator(TestHat(), (10, 10), [1, 1],
-                                                    [MOTOR_DISTANCE + 2, MOTOR_DISTANCE + 2])
+        self.testIllustrator = CartesianIllustrator(TestHat(), (10, 10), [1, 1], beltLengths=[CANVAS_DIMENSIONS + 2, CANVAS_DIMENSIONS + 2])
 
     def tearDown(self):
         Engine.DEBUG = 1
@@ -29,16 +28,16 @@ class IllustratorTest(unittest.TestCase):
         # belt lengths insufficient
         with self.assertRaises(Exception):
             CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
-                                 beltLengths=[MOTOR_DISTANCE / 3, MOTOR_DISTANCE / 3])
+                                 beltLengths=[CANVAS_DIMENSIONS / 3, CANVAS_DIMENSIONS / 3])
 
     def test_convertsToValidTriangleLengths(self):
-        invalidLengths = [[-1, 1], [1, -1], [-1, -1], [MOTOR_DISTANCE + 1, 1]]
+        invalidLengths = [[-1, 1], [1, -1], [-1, -1], [CANVAS_DIMENSIONS + 1, 1]]
         assertInvalidCases(invalidLengths, self.testIllustrator.triangleLengths)
 
-        invalidLengths = [[0, 0], [-1, 1], [1, -1], [-1, -1], [MOTOR_DISTANCE / 2, MOTOR_DISTANCE / 2]]
+        invalidLengths = [[0, 0], [-1, 1], [1, -1], [-1, -1], [CANVAS_DIMENSIONS / 2, CANVAS_DIMENSIONS / 2]]
         assertInvalidCases(invalidLengths, cartesianCoords)
 
-        coordinates = (float(MOTOR_DISTANCE / 2), float(MOTOR_DISTANCE))
+        coordinates = (float(CANVAS_DIMENSIONS / 2), float(CANVAS_DIMENSIONS))
         self.assertClose(cartesianCoords(self.testIllustrator.triangleLengths(coordinates)), coordinates)
         self.assertClose(self.testIllustrator.triangleLengths(cartesianCoords(coordinates)), coordinates)
         self.assertClose(cartesianCoords(
@@ -46,8 +45,12 @@ class IllustratorTest(unittest.TestCase):
                          coordinates)
 
     def test(self):
-        self.testIllustrator.go(10, 10)
-        self.assertEquals(self.testIllustrator.currentPosition(), (10, 10))
+        illustrator = CartesianIllustrator(TestHat(), (CANVAS_DIMENSIONS, CANVAS_DIMENSIONS), (0, 0), beltLengths=(60, 60))
+        self.assertEquals(illustrator.currentPosition(), (0, 0))
+        self.assertEquals(illustrator.leftEngine.currentLength(), 0)
+        self.assertEquals(illustrator.rightEngine.currentLength(), CANVAS_DIMENSIONS)
+        illustrator.go(10, 10)
+        self.assertEquals(illustrator.currentPosition(), (10, 10))
 
     def test_goesHome(self):
         self.assertEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
@@ -79,15 +82,9 @@ class IllustratorTest(unittest.TestCase):
         self.assertEquals(self.testIllustrator.findStraightLineTo(0, 1), (0, 1))
 
     def test_picksUpJobsFromQueue(self):
-        illustrator = CartesianIllustrator(TestHat(), (10, 10), (1, 1), [MOTOR_DISTANCE + 2, MOTOR_DISTANCE + 2])
+        illustrator = CartesianIllustrator(TestHat(), (10, 10), (1, 1), [CANVAS_DIMENSIONS + 2, CANVAS_DIMENSIONS + 2])
         illustrator.go(10, 10)
         self.assertEquals(illustrator.currentPosition(), (10, 10))
-
-    def test(self):
-        hat = TestHat()
-        illustrator = CartesianIllustrator(hat, (30, 30), (20, 20), (50, 50))
-        illustrator.go(10, 10)
-        print hat.stepper.stepSequence
 
     def assertClose(self, x, y):
         if len(x) != len(y): raise Exception("Different array lengths: (%d, %d)" % (len(x), len(y)))

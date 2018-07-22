@@ -1,30 +1,32 @@
 from math import sqrt, pow
 
-from illustrator.Illustrator import Illustrator, MOTOR_DISTANCE
+from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 
 
 class CartesianIllustrator(Illustrator):
     def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, beltLengths=None):
         super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, beltLengths)
 
+    def getBeltLengthsFor(self, initialPositions):
+        return self.triangleLengths(initialPositions)
+
     def go(self, x, y):
-        m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
-        print 'current position: (%d, %d)' % (self._currentPosition[0], self._currentPosition[1])
-        print 'going to : (%d, %d)' % (x, y)
-        if not m:
-            print 'm is none'
-        else:
-            print 'm = %f, b = %f' % (m, b)
+        print '--------- Going to: (%d, %d)' % (x, y)
         (targetLeft, targetRight) = self.triangleLengths((x, y))
         print 'targetLeft = %f, targetRight = %f' % (targetLeft, targetRight)
 
         (curLeft, curRight) = self.triangleLengths(self.currentPosition())
-        print 'current triangle: (%d, %d)' % (curLeft, curRight)
+        print 'currentLeft = %f, currentRight: %f' % (curLeft, curRight)
+
         deltaX = -(curLeft - targetLeft)
         print 'deltaX = %f' % deltaX
         deltaY = -(curRight - targetRight)
         print 'deltaY = %f' % deltaY
 
+        self.leftEngine.move(deltaX)
+        self.rightEngine.move(deltaY)
+        self._currentPosition = (x, y)
+        '''
         if m == None:
             pass
         elif m == 0:
@@ -45,6 +47,7 @@ class CartesianIllustrator(Illustrator):
 
         self._currentPosition = (x, y)
         pass
+    '''
 
     def areClose(self, a, b, rel_tol=1e-09, abs_tol=0.0):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -54,11 +57,11 @@ class CartesianIllustrator(Illustrator):
         y = coords[1]
         if x < 0 or y < 0:
             raise Exception("Negative coords: (%d, %d)" % (x, y))
-        if x > MOTOR_DISTANCE and not self.areClose(x, MOTOR_DISTANCE):
-            raise Exception("x coordinate out of bounds: (%d > %d)" % (x, MOTOR_DISTANCE))
+        if x > CANVAS_DIMENSIONS and not self.areClose(x, CANVAS_DIMENSIONS):
+            raise Exception("x coordinate out of bounds: (%d > %d)" % (x, CANVAS_DIMENSIONS))
 
         return (sqrt(pow(x, 2) + pow(y, 2)),
-                sqrt(pow(MOTOR_DISTANCE - x, 2) + pow(y, 2)))
+                sqrt(pow(CANVAS_DIMENSIONS - x, 2) + pow(y, 2)))
 
 
 def cartesianCoords(lengths):
@@ -67,11 +70,11 @@ def cartesianCoords(lengths):
     if leftLength * rightLength < 1 or leftLength + rightLength < 0:
         raise Exception("Negative or zero triangle lengths: (%d, %d)" % (leftLength, rightLength))
 
-    semi = (MOTOR_DISTANCE + leftLength + rightLength) / 2
-    if MOTOR_DISTANCE >= semi:
+    semi = (CANVAS_DIMENSIONS + leftLength + rightLength) / 2
+    if CANVAS_DIMENSIONS >= semi:
         raise Exception("Lengths are too short: impossible triangle")
 
-    y = (2.0 / MOTOR_DISTANCE) * (
-        sqrt(semi * (semi - leftLength) * (semi - rightLength) * (semi - MOTOR_DISTANCE)))
+    y = (2.0 / CANVAS_DIMENSIONS) * (
+        sqrt(semi * (semi - leftLength) * (semi - rightLength) * (semi - CANVAS_DIMENSIONS)))
     x = sqrt(pow(float(leftLength), 2) - pow(float(y), 2))
     return (x, y)

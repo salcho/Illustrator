@@ -44,7 +44,7 @@ class Engine(object):
     def expand(self, delta):
         raise NotImplemented("expand")
 
-    def currentPosition(self):
+    def currentLength(self):
         return self._curLength
 
     def beltLength(self):
