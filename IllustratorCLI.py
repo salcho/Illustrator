@@ -1,11 +1,11 @@
 from Adafruit_MotorHAT import *
 
-from illustrator import CartesianIllustrator
+from illustrator.CartesianIllustrator import CartesianIllustrator
 from illustrator.Illustrator import *
 import threading
 
 hat = Adafruit_MotorHAT()
-illustrator = CartesianIllustrator(hat, 30, 30, (0, 0), (50,50))
+illustrator = CartesianIllustrator(hat, canvasDimensions=(30, 30), initialPositions=(0, 0), beltLengths=(50,50))
 illustrator.start()
 
 orig = exit

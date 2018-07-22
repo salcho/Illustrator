@@ -4,6 +4,9 @@ from illustrator.Illustrator import Illustrator, MOTOR_DISTANCE
 
 
 class CartesianIllustrator(Illustrator):
+    def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, beltLengths=None):
+        super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, beltLengths)
+
     def go(self, x, y):
         m, b = self.findStraightLineTo(x, y)  # TODO: Do we really need this?
         print 'current position: (%d, %d)' % (self._currentPosition[0], self._currentPosition[1])

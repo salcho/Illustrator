@@ -20,21 +20,21 @@ class Engine(object):
         self.id = id
         self.engine = hat.getStepper(Engine.stepsPerPhase, id)
         self.engine.setSpeed(Engine.STEPPER_SPEED)
-        self._curPosition = initialPosition
-        self._beltLength = beltLength
+        self._curLength = initialPosition
+        self._maxLength = beltLength
 
     def __str__(self):
         return self.name
 
     def move(self, delta):
-        if Engine.DEBUG: print '[%s]\tMoving %d from %d' % (self, delta, self._curPosition)
+        if Engine.DEBUG: print '[%s]\tMoving %d from %d' % (self, delta, self._curLength)
         if delta > 0:
             self.expand(delta)
         elif delta < 0:
             self.retract(delta)
         else:
             pass
-        print '[%s] Current position: %d' % (self, self._curPosition)
+        print '[%s] Current position: %d' % (self, self._curLength)
 
     @abc.abstractmethod
     def retract(self, delta):
@@ -45,25 +45,25 @@ class Engine(object):
         raise NotImplemented("expand")
 
     def currentPosition(self):
-        return self._curPosition
+        return self._curLength
 
     def beltLength(self):
-        return self._beltLength
+        return self._maxLength
 
     def towardsUpperBoundary(self, direction, delta):
-        if self._curPosition + delta >= self.beltLength():
-            self.engine.step((self.beltLength() - self._curPosition)*Engine.STEPS_PER_MM, direction, Engine.style)
-            self._curPosition = self.beltLength()
+        if self._curLength + delta >= self.beltLength():
+            self.engine.step((self.beltLength() - self._curLength) * Engine.STEPS_PER_MM, direction, Engine.style)
+            self._curLength = self.beltLength()
         else:
-            self._curPosition += delta
+            self._curLength += delta
             self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
     def towardsLowerBoundary(self, direction, delta):
-        if self._curPosition - delta <= 0:
-            self.engine.step(self._curPosition*Engine.STEPS_PER_MM, direction, Engine.style)
-            self._curPosition = 0
+        if self._curLength - delta <= 0:
+            self.engine.step(self._curLength * Engine.STEPS_PER_MM, direction, Engine.style)
+            self._curLength = 0
         else:
-            self._curPosition -= delta
+            self._curLength -= delta
             self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
 class LeftEngine(Engine):

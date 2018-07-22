@@ -45,6 +45,10 @@ class IllustratorTest(unittest.TestCase):
             self.testIllustrator.triangleLengths(cartesianCoords(self.testIllustrator.triangleLengths(coordinates)))),
                          coordinates)
 
+    def test(self):
+        self.testIllustrator.go(10, 10)
+        self.assertEquals(self.testIllustrator.currentPosition(), (10, 10))
+
     def test_goesHome(self):
         self.assertEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
                                                beltLengths=[sys.maxint, sys.maxint])

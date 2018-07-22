@@ -34,6 +34,7 @@ class Illustrator(Draws):
 
         self.createEngines(beltLengths, initialPositions)
         self._currentPosition = initialPositions  # in (x, y) coords
+        print "Initial position is: (%d, %d)" % (self._currentPosition[0], self._currentPosition[1])
 
     def go(self, x, y):
         raise NotImplemented("go")
@@ -92,7 +93,11 @@ class Illustrator(Draws):
     def createEngines(self, beltLengths, initialPositions):
         self.leftEngineQueue = Queue()
         self.rightEngineQueue = Queue()
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
+
+        # CONVENTION: Start with the left belt completely retracted
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, 0, beltLengths[0])
+        #self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
                                      #self.leftEngineQueue)
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, beltLengths[1], beltLengths[1],)
+        #self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
                                        #self.rightEngineQueue)
