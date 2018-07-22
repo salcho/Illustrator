@@ -32,5 +32,6 @@ try:
 			continue
 
 		illustrator.go(x, y)
+		illustrator.ready()
 except KeyboardInterrupt:
 	exit()	

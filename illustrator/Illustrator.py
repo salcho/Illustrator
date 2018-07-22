@@ -104,3 +104,6 @@ class Illustrator(Draws):
     @abc.abstractmethod
     def getBeltLengthsFor(self, initialPositions):
         pass
+
+    def ready(self):
+        return self.leftEngineQueue.empty() and self.rightEngineQueue.empty()
