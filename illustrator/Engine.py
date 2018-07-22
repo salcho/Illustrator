@@ -12,7 +12,7 @@ try:
     from Adafruit_MotorHAT import Adafruit_MotorHAT
     FORWARD = Adafruit_MotorHAT.FORWARD
     BACKWARD = Adafruit_MotorHAT.BACKWARD
-    STYLE = Adafruit_MotorHAT.MICROSTEP
+    STYLE = Adafruit_MotorHAT.SINGLE
 except:
     FORWARD = 1
     BACKWARD = 2
