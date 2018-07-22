@@ -2,6 +2,8 @@ import abc
 import logging
 from threading import Thread
 
+import sys
+
 FORWARD = -1
 BACKWARD = -1
 STYLE = -1
@@ -43,7 +45,7 @@ class Engine(object):
 
     def log(self, msg):
         if Engine.DEBUG:
-            self.logger.debug(msg, extra={"stepper": self})
+            self.logger.debug(msg, extra={"stepper": str(self)})
 
     def moveToLength(self):
         while True:
