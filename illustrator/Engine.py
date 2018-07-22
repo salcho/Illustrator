@@ -46,14 +46,7 @@ class Engine(object):
             length = self.q.get()
             print '[%s] Going to length %d from %d' % (self, length, self._curLength)
             delta = self._curLength - length
-            thread = None
-            if not delta:
-                pass
-            elif delta > 0:
-                self.retract(delta)
-            else:
-                self.expand(delta)
-            print '[%s] Current position is: %d' % (self, self._curLength)
+            self.move(delta)
             self.q.task_done()
 
     def __str__(self):
@@ -86,7 +79,7 @@ class Engine(object):
 
     def towardsUpperBoundary(self, direction, delta):
         if self._curLength + delta >= self.beltLength():
-            self.engine.step((self.beltLength() - self._curLength) * Engine.STEPS_PER_MM, direction, Engine.style)
+            self.engine.step((self.beltLength() - int(self._curLength)) * Engine.STEPS_PER_MM, direction, Engine.style)
             self._curLength = self.beltLength()
         else:
             self._curLength += delta
@@ -98,14 +91,13 @@ class Engine(object):
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curLength - delta <= 0:
-            self.engine.step(self._curLength * Engine.STEPS_PER_MM, direction, Engine.style)
+            self.engine.step(int(self._curLength) * Engine.STEPS_PER_MM, direction, Engine.style)
             self._curLength = 0
         else:
             self._curLength -= delta
             steps = int(delta) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
                 print '[%s] Steps per mm: %d towards %s' % (self, steps, direction)
-
             self.engine.step(steps, direction, Engine.style)
 
 class LeftEngine(Engine):
