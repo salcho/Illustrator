@@ -12,7 +12,7 @@ try:
     from Adafruit_MotorHAT import Adafruit_MotorHAT
     FORWARD = Adafruit_MotorHAT.FORWARD
     BACKWARD = Adafruit_MotorHAT.BACKWARD
-    STYLE = Adafruit_MotorHAT.SINGLE
+    STYLE = Adafruit_MotorHAT.MICROSTEP
 except:
     FORWARD = 1
     BACKWARD = 2
@@ -23,7 +23,7 @@ class Engine(object):
     __metaclass__ = abc.ABCMeta
     STEPPER_SPEED = 10
     stepsPerPhase = 200
-    STEPS_PER_MM = 10
+    STEPS_PER_MM = 50
     DEBUG = 1
 
     def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue, logger=logging.getLogger('Engine')):
