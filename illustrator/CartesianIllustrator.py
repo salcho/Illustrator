@@ -1,7 +1,4 @@
-import logging
-from math import sqrt, pow
-
-from illustrator.Engine import Engine
+from math import sqrt, pow, ceil
 from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 
 
@@ -20,13 +17,22 @@ class CartesianIllustrator(Illustrator):
         (curLeft, curRight) = self.triangleLengths(self.currentPosition())
         print 'currentLeft = %f, currentRight: %f' % (curLeft, curRight)
 
-        deltaX = -(curLeft - targetLeft)
-        print 'deltaX = %f' % deltaX
-        deltaY = -(curRight - targetRight)
-        print 'deltaY = %f' % deltaY
+        deltaLeft = int(-(curLeft - targetLeft))
+        print 'deltaLeft = %f' % deltaLeft
+        deltaRight = int(-(curRight - targetRight))
+        print 'deltaRight = %f' % deltaRight
 
-        self.leftEngineQueue.put(deltaX)
-        self.rightEngineQueue.put(deltaY)
+        denominator = max(deltaLeft, deltaRight)
+        numerator = min(deltaLeft, deltaRight)
+        rateOfChange = numerator / denominator
+
+        while int(numerator):
+            self.leftEngineQueue.put(1)
+            self.rightEngineQueue.put(ceil(1 * (1 + rateOfChange)))
+            numerator = numerator - 1 if numerator > 0 else numerator + 1
+            self.leftEngineQueue.join()
+            self.rightEngineQueue.join()
+
         self._currentPosition = (x, y)
         '''
         if m == None:
@@ -36,13 +42,13 @@ class CartesianIllustrator(Illustrator):
         else:
             i = 0
             j = 0
-            xsign = -1 if deltaX < 0 else 1
-            ysign = -1 if deltaY < 0 else 1
-            for cnt in range(max(abs(int(deltaX)), abs(int(deltaY)))):
-                if i < abs(deltaX):
+            xsign = -1 if deltaLeft < 0 else 1
+            ysign = -1 if deltaRight < 0 else 1
+            for cnt in range(max(abs(int(deltaLeft)), abs(int(deltaRight)))):
+                if i < abs(deltaLeft):
                     self.leftEngine.move(xsign)
                     i += 1
-                if j < abs(deltaY):
+                if j < abs(deltaRight):
                     for i in range(int(abs(m))):
                         self.rightEngine.move(ysign)
                         j += 1
