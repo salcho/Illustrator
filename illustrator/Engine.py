@@ -23,7 +23,7 @@ class Engine(object):
     __metaclass__ = abc.ABCMeta
     STEPPER_SPEED = 10
     stepsPerPhase = 200
-    STEPS_PER_MM = 50
+    STEPS_PER_MM = 10
     DEBUG = 1
 
     def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue, logger=logging.getLogger('Engine')):
