@@ -27,10 +27,11 @@ class Engine(object):
         return self.name
 
     def move(self, delta):
-        if Engine.DEBUG: print '[%s]\tMoving %d from %d' % (self, delta, self._curLength)
         if delta > 0:
+            if Engine.DEBUG: print '[%s]\tExpanding %d from %d' % (self, delta, self._curLength)
             self.expand(delta)
         elif delta < 0:
+            if Engine.DEBUG: print '[%s]\tRetracting %d from %d' % (self, delta, self._curLength)
             self.retract(delta)
         else:
             pass
@@ -56,7 +57,11 @@ class Engine(object):
             self._curLength = self.beltLength()
         else:
             self._curLength += delta
-            self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
+            steps = int(delta) * Engine.STEPS_PER_MM
+            if Engine.DEBUG:
+                print '[%s] Steps per mm: %d' % (self, steps)
+
+            self.engine.step(steps, direction, Engine.style)
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curLength - delta <= 0:
@@ -64,7 +69,11 @@ class Engine(object):
             self._curLength = 0
         else:
             self._curLength -= delta
-            self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
+            steps = -int(delta) * Engine.STEPS_PER_MM
+            if Engine.DEBUG:
+                print '[%s] Steps per mm: %d' % (self, steps)
+
+            self.engine.step(steps, direction, Engine.style)
 
 class LeftEngine(Engine):
     def retract(self, delta):
