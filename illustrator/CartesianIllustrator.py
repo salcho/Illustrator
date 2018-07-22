@@ -20,7 +20,7 @@ class CartesianIllustrator(Illustrator):
 
         deltaX = -(curLeft - targetLeft)
         print 'deltaX = %f' % deltaX
-        deltaY = (curRight - targetRight)
+        deltaY = -(curRight - targetRight)
         print 'deltaY = %f' % deltaY
 
         self.leftEngine.move(deltaX)
