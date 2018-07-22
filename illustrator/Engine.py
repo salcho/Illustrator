@@ -1,4 +1,5 @@
 import abc
+from threading import Thread
 
 FORWARD = -1
 BACKWARD = -1
@@ -25,7 +26,7 @@ class Engine(object):
     style = 1 # Adafruit_MotorHAT.SINGLE
     DEBUG = 1
 
-    def __init__(self, name, id, hat, initialPosition, beltLength):
+    def __init__(self, name, id, hat, initialPosition, beltLength, instructionQueue):
         if initialPosition < 0 or initialPosition > beltLength:
             raise Exception("Invalid initial position for engine %d" % id)
         self.motorHat = hat
@@ -35,6 +36,25 @@ class Engine(object):
         self.engine.setSpeed(Engine.STEPPER_SPEED)
         self._curLength = initialPosition
         self._maxLength = beltLength
+        self.q = instructionQueue
+        self.thread = Thread(target=self.moveToLength)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def moveToLength(self):
+        while True:
+            length = self.q.get()
+            print '[%s] Going to length %d from %d' % (self, length, self._curLength)
+            delta = self._curLength - length
+            thread = None
+            if not delta:
+                pass
+            elif delta > 0:
+                self.retract(delta)
+            else:
+                self.expand(delta)
+            print '[%s] Current position is: %d' % (self, self._curLength)
+            self.q.task_done()
 
     def __str__(self):
         return self.name
@@ -89,6 +109,7 @@ class Engine(object):
             self.engine.step(steps, direction, Engine.style)
 
 class LeftEngine(Engine):
+
     def retract(self, delta):
         self.towardsLowerBoundary(BACKWARD, abs(delta))
         return self

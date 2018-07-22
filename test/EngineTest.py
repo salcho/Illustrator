@@ -9,10 +9,10 @@ from TestClasses import TestHat
 class EngineTest(unittest.TestCase):
     def test_validatesInitialPosition(self):
         with self.assertRaises(Exception):
-            Engine("test", 1, TestHat(), -1, beltLength=1)
+            Engine("test", 1, TestHat(), -1, beltLength=1, instructionQueue=null)
 
         with self.assertRaises(Exception):
-            Engine("test", 1, TestHat(), 11, beltLength=10)
+            Engine("test", 1, TestHat(), 11, beltLength=10, instructionQueue=null)
 
         try:
             LeftEngine("test", 1, TestHat(), 0, 1)

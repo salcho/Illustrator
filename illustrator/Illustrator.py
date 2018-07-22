@@ -98,8 +98,8 @@ class Illustrator(Draws):
         self.rightEngineQueue = Queue()
 
         # CONVENTION: Start with the left belt completely retracted
-        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0])
-        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1],)
+        self.leftEngine = LeftEngine("leftStepper", 1, self.motorHat, initialPositions[0], beltLengths[0], self.leftEngineQueue)
+        self.rightEngine = RightEngine("rightStepper", 2, self.motorHat, initialPositions[1], beltLengths[1], self.rightEngineQueue)
 
     @abc.abstractmethod
     def getBeltLengthsFor(self, initialPositions):

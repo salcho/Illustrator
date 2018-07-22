@@ -23,8 +23,8 @@ class CartesianIllustrator(Illustrator):
         deltaY = -(curRight - targetRight)
         print 'deltaY = %f' % deltaY
 
-        self.leftEngine.move(deltaX)
-        self.rightEngine.move(deltaY)
+        self.leftEngineQueue.put(deltaX)
+        self.rightEngineQueue.put(deltaY)
         self._currentPosition = (x, y)
         '''
         if m == None:
