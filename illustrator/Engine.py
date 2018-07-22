@@ -43,9 +43,8 @@ class Engine(object):
 
     def moveToLength(self):
         while True:
-            length = self.q.get()
-            print '[%s] Going to length %d from %d' % (self, length, self._curLength)
-            delta = self._curLength - length
+            delta = self.q.get()
+            print '[%s] Moving delta %d, from %d' % (self, delta, self._curLength)
             self.move(delta)
             self.q.task_done()
 
