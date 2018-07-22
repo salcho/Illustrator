@@ -77,11 +77,11 @@ class Engine(object):
 
 class LeftEngine(Engine):
     def retract(self, delta):
-        self.towardsLowerBoundary(Engine.backward, abs(delta))
+        self.towardsLowerBoundary(Engine.forward, abs(delta))
         return self
 
     def expand(self, delta):
-        self.towardsUpperBoundary(Engine.forward, abs(delta))
+        self.towardsUpperBoundary(Engine.backward, abs(delta))
         return self
 
 class RightEngine(Engine):
