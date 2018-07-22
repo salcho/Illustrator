@@ -45,7 +45,8 @@ class Engine(object):
 
     def log(self, msg):
         if Engine.DEBUG:
-            self.logger.debug(msg, extra={"stepper": str(self)})
+            #self.logger.debug(msg, extra={"stepper": str(self)})
+            print '%-20s %s' % (self, msg)
 
     def moveToLength(self):
         while True:

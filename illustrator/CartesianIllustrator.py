@@ -7,7 +7,6 @@ from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 
 class CartesianIllustrator(Illustrator):
     def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, beltLengths=None):
-        logging.basicConfig(level=logging.DEBUG)
         super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, beltLengths)
 
     def getBeltLengthsFor(self, initialPositions):
