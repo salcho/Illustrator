@@ -52,18 +52,16 @@ class Engine(object):
 
     def towardsUpperBoundary(self, direction, delta):
         if self._curPosition + delta >= self.beltLength():
-            self._curPosition = self.beltLength()
             self.engine.step((self.beltLength() - self._curPosition)*Engine.STEPS_PER_MM, direction, Engine.style)
-            raise StandardError("Hit upper boundary")
+            self._curPosition = self.beltLength()
         else:
             self._curPosition += delta
             self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curPosition - delta <= 0:
-            self._curPosition = 0
             self.engine.step(self._curPosition*Engine.STEPS_PER_MM, direction, Engine.style)
-            raise StandardError("Hit lower boundary")
+            self._curPosition = 0
         else:
             self._curPosition -= delta
             self.engine.step(int(delta)*Engine.STEPS_PER_MM, direction, Engine.style)

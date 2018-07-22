@@ -1,5 +1,6 @@
 from illustrator.IHat import IHat
 
+
 class TestHat(IHat):
     def __init__(self):
         self.motorCount = 0
@@ -21,5 +22,6 @@ class TestStepper(object):
 
     def run(self, action):
         pass
+
     def setSpeed(self, speed):
         pass
