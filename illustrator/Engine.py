@@ -82,7 +82,7 @@ class Engine(object):
             self._curLength = 0
         else:
             self._curLength -= delta
-            steps = -int(delta) * Engine.STEPS_PER_MM
+            steps = int(delta) * Engine.STEPS_PER_MM
             if Engine.DEBUG:
                 print '[%s] Steps per mm: %d towards %s' % (self, steps, direction)
 
