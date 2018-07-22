@@ -79,7 +79,11 @@ class Engine(object):
 
     def towardsUpperBoundary(self, direction, delta):
         if self._curLength + delta >= self.beltLength():
-            self.engine.step((self.beltLength() - int(self._curLength)) * Engine.STEPS_PER_MM, direction, Engine.style)
+            steps = (self.beltLength() - int(self._curLength)) * Engine.STEPS_PER_MM
+            if Engine.DEBUG:
+                print '[%s] Moving to boundary. Steps per mm: %d towards %s' % (self, steps, direction)
+
+            self.engine.step(steps, direction, Engine.style)
             self._curLength = self.beltLength()
         else:
             self._curLength += delta
@@ -91,7 +95,11 @@ class Engine(object):
 
     def towardsLowerBoundary(self, direction, delta):
         if self._curLength - delta <= 0:
-            self.engine.step(int(self._curLength) * Engine.STEPS_PER_MM, direction, Engine.style)
+            steps = int(self._curLength) * Engine.STEPS_PER_MM
+            if Engine.DEBUG:
+                print '[%s] Moving to boundary. Steps per mm: %d towards %s' % (self, steps, direction)
+
+            self.engine.step(steps, direction, Engine.style)
             self._curLength = 0
         else:
             self._curLength -= delta
