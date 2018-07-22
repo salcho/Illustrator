@@ -27,8 +27,8 @@ class CartesianIllustrator(Illustrator):
         rateOfChange = numerator / denominator
 
         while int(numerator):
-            self.leftEngineQueue.put((1 if deltaLeft > 0 else -1) * 10)
-            self.rightEngineQueue.put(ceil((1 if deltaRight > 0 else -1 * (1 + rateOfChange)) * 10))
+            self.leftEngineQueue.put((1 if deltaLeft > 0 else -1))
+            self.rightEngineQueue.put(ceil((1 if deltaRight > 0 else -1 * (1 + rateOfChange))))
 
             numerator = numerator - 1 if numerator > 0 else numerator + 1
             self.leftEngineQueue.join()
