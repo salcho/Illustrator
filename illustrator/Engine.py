@@ -11,8 +11,8 @@ try:
     STYLE = Adafruit_MotorHAT.SINGLE
 except:
     FORWARD = 1
-    BACKWARD = 1
-    STYLE = 1
+    BACKWARD = 2
+    STYLE = 3
     pass
 
 from test.TestClasses import TestHat
