@@ -108,10 +108,10 @@ class Engine(object):
             self.engine.step(unit, direction, STYLE)
 
     def retract_delta(self, centimeters):
-        iterations = floor(centimeters)
+        iterations = floor(centimeters) * 10
         leftovers = int((centimeters - iterations) * 10) # in mm
         while iterations:
-            self.retract_single(unit=Engine.STEPS_PER_CM)
+            self.retract_single(unit=Engine.STEPS_PER_MM)
             iterations -= 1
             self._curLength -= 1
 
@@ -121,11 +121,11 @@ class Engine(object):
             self._curLength -= 0.1
 
     def expand_delta(self, centimeters):
-        iterations = floor(centimeters)
+        iterations = floor(centimeters) * 10
         leftovers = int((centimeters - iterations) * 10) # in mm
 
         while iterations:
-            self.expand_single(unit=Engine.STEPS_PER_CM)
+            self.expand_single(unit=Engine.STEPS_PER_MM)
             iterations -= 1
             self._curLength += 1
 
