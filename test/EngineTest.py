@@ -21,13 +21,13 @@ class EngineTest(unittest.TestCase):
             self.fail("Engine rejects initial position 0")
 
     def test_remembersPosition(self):
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 50, 100, Queue()).expand(10).retract(10).currentLength(), 50)
-        self.assertEquals(RightEngine("test", 1, TestHat(), 50, 100, Queue()).retract(10).currentLength(), 40)
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 50, 100, Queue()).retract(10).expand(50).currentLength(), 90)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 50, 100, Queue()).expand_single(10).retract_single(10).currentLength(), 50)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 50, 100, Queue()).retract_single(10).currentLength(), 40)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 50, 100, Queue()).retract_single(10).expand_single(50).currentLength(), 90)
 
     def test_staysWithinLimits(self):
         # Moves to the closest boundary if delta overflows
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 5, 10, Queue()).retract(5).currentLength(), 0)
-        self.assertEquals(LeftEngine("test", 1, TestHat(), 5, 10, Queue()).retract(10).currentLength(), 0)
-        self.assertEquals(RightEngine("test", 1, TestHat(), 5, 10, Queue()).retract(4).expand(9).currentLength(), 10)
-        self.assertEquals(RightEngine("test", 1, TestHat(), 5, 10, Queue()).retract(4).expand(20).currentLength(), 10)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 5, 10, Queue()).retract_single(5).currentLength(), 0)
+        self.assertEquals(LeftEngine("test", 1, TestHat(), 5, 10, Queue()).retract_single(10).currentLength(), 0)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 5, 10, Queue()).retract_single(4).expand_single(9).currentLength(), 10)
+        self.assertEquals(RightEngine("test", 1, TestHat(), 5, 10, Queue()).retract_single(4).expand_single(20).currentLength(), 10)

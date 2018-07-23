@@ -1,5 +1,6 @@
 import sys
 import unittest
+from math import ceil
 
 from illustrator.Engine import Engine
 from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
@@ -10,7 +11,7 @@ from TestClasses import TestHat
 
 class IllustratorTest(unittest.TestCase):
     def setUp(self):
-        self.testIllustrator = CartesianIllustrator(TestHat(), (10, 10), [1, 1], beltLengths=[CANVAS_DIMENSIONS + 2, CANVAS_DIMENSIONS + 2])
+        self.testIllustrator = CartesianIllustrator(TestHat(), (10, 10), [1, 1], belt_lengths=[CANVAS_DIMENSIONS + 2, CANVAS_DIMENSIONS + 2])
 
     def tearDown(self):
         Engine.DEBUG = 1
@@ -18,17 +19,17 @@ class IllustratorTest(unittest.TestCase):
     def test_validatesArguments(self):
         # HAT
         with self.assertRaises(Exception):
-            CartesianIllustrator(None, canvasDimensions=(1, 1), initialPositions=[1, 1], beltLengths=[1, 1])
+            CartesianIllustrator(None, canvasDimensions=(1, 1), initialPositions=[1, 1], belt_lengths=[1, 1])
         # canvas width
         with self.assertRaises(Exception):
-            CartesianIllustrator(TestHat(), canvasDimensions=(0, 10), initialPositions=[1, 1], beltLengths=[1, 1])
+            CartesianIllustrator(TestHat(), canvasDimensions=(0, 10), initialPositions=[1, 1], belt_lengths=[1, 1])
         # canvas height
         with self.assertRaises(Exception):
-            CartesianIllustrator(TestHat(), canvasDimensions=(10, 0), initialPositions=[1, 1], beltLengths=[1, 1])
+            CartesianIllustrator(TestHat(), canvasDimensions=(10, 0), initialPositions=[1, 1], belt_lengths=[1, 1])
         # belt lengths insufficient
         with self.assertRaises(Exception):
             CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
-                                 beltLengths=[CANVAS_DIMENSIONS / 3, CANVAS_DIMENSIONS / 3])
+                                 belt_lengths=[CANVAS_DIMENSIONS / 3, CANVAS_DIMENSIONS / 3])
 
     def test_convertsToValidTriangleLengths(self):
         invalidLengths = [[-1, 1], [1, -1], [-1, -1], [CANVAS_DIMENSIONS + 1, 1]]
@@ -45,27 +46,29 @@ class IllustratorTest(unittest.TestCase):
                          coordinates)
 
     def test(self):
-        illustrator = CartesianIllustrator(TestHat(), (CANVAS_DIMENSIONS, CANVAS_DIMENSIONS), (0, 0), beltLengths=(60, 60))
+        illustrator = CartesianIllustrator(TestHat(), (CANVAS_DIMENSIONS, CANVAS_DIMENSIONS), (0, 0), belt_lengths=(60, 60))
         self.assertEquals(illustrator.currentPosition(), (0, 0))
         self.assertEquals(illustrator.leftEngine.currentLength(), 0)
         self.assertEquals(illustrator.rightEngine.currentLength(), CANVAS_DIMENSIONS)
         illustrator.go(10, 10)
+        self.assertEquals(ceil(illustrator.leftEngine.currentLength()), 12)
+        self.assertEquals(illustrator.rightEngine.currentLength(), 32)
         self.assertEquals(illustrator.currentPosition(), (10, 10))
 
     def test_goesHome(self):
         self.assertEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
-                                               beltLengths=[sys.maxint, sys.maxint])
+                                               belt_lengths=[sys.maxint, sys.maxint])
                           .start(findHome=True)
                           .currentPosition(),
                           (0, 0))
         self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
-                                                  beltLengths=[sys.maxint, sys.maxint])
+                                                  belt_lengths=[sys.maxint, sys.maxint])
                              .start()
                              .currentPosition(),
                              (1, 1))
         # Default option
         self.assertNotEquals(CartesianIllustrator(TestHat(), canvasDimensions=(1, 1), initialPositions=[1, 1],
-                                                  beltLengths=[sys.maxint, sys.maxint])
+                                                  belt_lengths=[sys.maxint, sys.maxint])
                              .start()
                              .currentPosition(),
                              (1, 1))

@@ -3,64 +3,69 @@ from illustrator.Illustrator import Illustrator, CANVAS_DIMENSIONS
 
 
 class CartesianIllustrator(Illustrator):
-    def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, beltLengths=None):
-        super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, beltLengths)
+    def __init__(self, hat=None, canvasDimensions=None, initialPositions=None, belt_lengths=None):
+        super(CartesianIllustrator, self).__init__(hat, canvasDimensions, initialPositions, belt_lengths)
 
-    def getBeltLengthsFor(self, initialPositions):
-        return self.triangleLengths(initialPositions)
+    def getBeltLengthsFor(self, initial_positions):
+        return self.triangleLengths(initial_positions)
 
     def go(self, x, y):
         print '--------- Going to: (%d, %d)' % (x, y)
-        (targetLeft, targetRight) = self.triangleLengths((x, y))
-        print 'targetLeft = %f, targetRight = %f' % (targetLeft, targetRight)
+        (target_left, target_right) = self.triangleLengths((x, y))
+        print 'target_left = %f cm, target_right = %f cm' % (target_left, target_right)
 
         (curLeft, curRight) = self.triangleLengths(self.currentPosition())
-        print 'currentLeft = %f, currentRight: %f' % (curLeft, curRight)
+        print 'currentLeft = %f cm, currentRight: %f cm' % (curLeft, curRight)
 
-        deltaLeft = int(-(curLeft - targetLeft))
-        print 'deltaLeft = %f' % deltaLeft
-        deltaRight = int(-(curRight - targetRight))
-        print 'deltaRight = %f' % deltaRight
+        deltaLeft = -(curLeft - target_left)
+        print 'deltaLeft = %f cm' % deltaLeft
+        deltaRight = -(curRight - target_right)
+        print 'deltaRight = %f cm' % deltaRight
 
         denominator = max(deltaLeft, deltaRight)
         numerator = min(deltaLeft, deltaRight)
-        rateOfChange = numerator / denominator
+        rateOfChange = abs(numerator / denominator)
+        print 'rate of change %f' % rateOfChange
+        def increment(x):
+            return x - 1 if deltaLeft > 0 else x + 1
 
-        while int(numerator):
-            self.leftEngineQueue.put((1 if deltaLeft > 0 else -1) * 10)
-            self.rightEngineQueue.put(ceil((1 if deltaRight > 0 else -1 * (1 + rateOfChange)) * 10))
+        # each element in the queue represents a cm
+        iterations = abs(int(numerator))
+        print 'will run %d iterations' % iterations
 
-            numerator = numerator - 1 if numerator > 0 else numerator + 1
-            self.leftEngineQueue.join()
-            self.rightEngineQueue.join()
+        while iterations:
+            if deltaLeft == numerator:
+                self.queueLeft(deltaLeft, 0)
+                self.leftEngineQueue.join()
+                self.queueRight(deltaRight, rateOfChange)
+                self.rightEngineQueue.join()
+            else:
+                self.queueLeft(deltaLeft, rateOfChange)
+                self.leftEngineQueue.join()
+                self.queueRight(deltaRight, 0)
+                self.rightEngineQueue.join()
+
+            iterations = increment(iterations)
 
         self._currentPosition = (x, y)
-        '''
-        if m == None:
-            pass
-        elif m == 0:
-            pass
+
+
+    def queueLeft(self, deltaLeft, rateOfChange):
+        if deltaLeft > 0:
+            self.leftEngineQueue.put(1 + rateOfChange)
         else:
-            i = 0
-            j = 0
-            xsign = -1 if deltaLeft < 0 else 1
-            ysign = -1 if deltaRight < 0 else 1
-            for cnt in range(max(abs(int(deltaLeft)), abs(int(deltaRight)))):
-                if i < abs(deltaLeft):
-                    self.leftEngine.move(xsign)
-                    i += 1
-                if j < abs(deltaRight):
-                    for i in range(int(abs(m))):
-                        self.rightEngine.move(ysign)
-                        j += 1
+            self.leftEngineQueue.put(-1 - rateOfChange)
 
-        self._currentPosition = (x, y)
-        pass
-    '''
+    def queueRight(self, deltaRight, rateOfChange):
+        if deltaRight > 0:
+            self.rightEngineQueue.put(1 + rateOfChange)
+        else:
+            self.rightEngineQueue.put(-1 - rateOfChange)
 
     def areClose(self, a, b, rel_tol=1e-09, abs_tol=0.0):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
+    # noinspection PyPep8Naming
     def triangleLengths(self, coords):
         x = coords[0]
         y = coords[1]
@@ -69,8 +74,7 @@ class CartesianIllustrator(Illustrator):
         if x > CANVAS_DIMENSIONS and not self.areClose(x, CANVAS_DIMENSIONS):
             raise Exception("x coordinate out of bounds: (%d > %d)" % (x, CANVAS_DIMENSIONS))
 
-        return (sqrt(pow(x, 2) + pow(y, 2)),
-                sqrt(pow(CANVAS_DIMENSIONS - x, 2) + pow(y, 2)))
+        return (sqrt(pow(x, 2) + pow(y, 2)), sqrt(pow(CANVAS_DIMENSIONS - x, 2) + pow(y, 2)))
 
 
 def cartesianCoords(lengths):
