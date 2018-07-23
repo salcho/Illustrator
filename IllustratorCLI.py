@@ -31,11 +31,11 @@ try:
                 exit()
             elif x == 'setcm':
                 val = raw_input('steps per cm ----> ')
-                Engine.STEPS_PER_CM = val
+                Engine.STEPS_PER_CM = int(val)
                 continue
             elif x == 'setmm':
                 val = raw_input('steps per cm ----> ')
-                Engine.STEPS_PER_MM = val
+                Engine.STEPS_PER_MM = int(val)
                 continue
 
             x = int(x)
