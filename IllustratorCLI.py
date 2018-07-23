@@ -5,7 +5,7 @@ from illustrator.Illustrator import *
 import threading
 
 hat = Adafruit_MotorHAT()
-illustrator = CartesianIllustrator(hat, canvasDimensions=(30, 30), initialPositions=(0, 0), beltLengths=(50,50))
+illustrator = CartesianIllustrator(hat, canvasDimensions=(30, 30), initialPositions=(0, 0), belt_lengths=(50,50))
 print '------------------'
 print 'Canvas dimensions: (30, 30)'
 print 'Initial positions: (0, 0)'
