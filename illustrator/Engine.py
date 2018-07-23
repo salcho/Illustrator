@@ -1,6 +1,6 @@
 import abc
 import logging
-from math import ceil, floor
+from math import floor
 from threading import Thread
 
 FORWARD = -1
@@ -85,6 +85,7 @@ class Engine(object):
         delta = 1 # cm
 
         if self._curLength + delta >= self.beltLength():
+            raise Exception("halp boundary!")
             steps = (self.beltLength() - int(self._curLength)) * unit
             if Engine.DEBUG:
                 self.log('[%s] Moving to boundary. [%d] %s\n' % (self, steps, fromInt(direction)))
@@ -98,6 +99,7 @@ class Engine(object):
         delta = 1
 
         if self._curLength - delta <= 0:
+            raise Exception("halp lowerboundary!")
             steps = int(self._curLength) * unit
             if Engine.DEBUG:
                 self.log('[%s] Moving to boundary. [%d] %s\n' % (self, steps, fromInt(direction)))
@@ -108,10 +110,10 @@ class Engine(object):
             self.engine.step(unit, direction, STYLE)
 
     def retract_delta(self, centimeters):
-        iterations = floor(centimeters) * 10
+        iterations = floor(centimeters)
         leftovers = int((centimeters - iterations) * 10) # in mm
         while iterations:
-            self.retract_single(unit=Engine.STEPS_PER_MM)
+            self.retract_single(unit=Engine.STEPS_PER_CM)
             iterations -= 1
             self._curLength -= 1
 
@@ -121,11 +123,11 @@ class Engine(object):
             self._curLength -= 0.1
 
     def expand_delta(self, centimeters):
-        iterations = floor(centimeters) * 10
+        iterations = floor(centimeters)
         leftovers = int((centimeters - iterations) * 10) # in mm
 
         while iterations:
-            self.expand_single(unit=Engine.STEPS_PER_MM)
+            self.expand_single(unit=Engine.STEPS_PER_CM)
             iterations -= 1
             self._curLength += 1
 
