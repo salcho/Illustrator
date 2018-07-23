@@ -36,14 +36,13 @@ class CartesianIllustrator(Illustrator):
         while iterations:
             if deltaLeft == numerator:
                 self.queueLeft(deltaLeft, 0)
-                self.leftEngineQueue.join()
                 self.queueRight(deltaRight, rateOfChange)
-                self.rightEngineQueue.join()
             else:
                 self.queueLeft(deltaLeft, rateOfChange)
-                self.leftEngineQueue.join()
                 self.queueRight(deltaRight, 0)
-                self.rightEngineQueue.join()
+
+            self.rightEngineQueue.join()
+            self.leftEngineQueue.join()
 
             iterations = increment(iterations)
 
