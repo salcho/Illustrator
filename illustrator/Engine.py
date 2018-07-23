@@ -113,7 +113,8 @@ class Engine(object):
         iterations = floor(centimeters)
         leftovers = int((centimeters - iterations) * 10) # in mm
         while iterations:
-            self.retract_single(unit=Engine.STEPS_PER_CM)
+            for i in range(0, 10):
+                self.retract_single(unit=Engine.STEPS_PER_MM)
             iterations -= 1
             self._curLength -= 1
 
@@ -127,7 +128,8 @@ class Engine(object):
         leftovers = int((centimeters - iterations) * 10) # in mm
 
         while iterations:
-            self.expand_single(unit=Engine.STEPS_PER_CM)
+            for i in range(0, 10):
+                self.expand_single(unit=Engine.STEPS_PER_MM)
             iterations -= 1
             self._curLength += 1
 
